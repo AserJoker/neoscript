@@ -11,12 +11,14 @@
 struct _neo_context {
   neo_runtime rt;
   neo_scope scope;
+  neo_list closures;
   neo_value null;
 };
 neo_context create_neo_context(neo_runtime rt) {
   neo_context ctx = (neo_context)malloc(sizeof(struct _neo_context));
   ctx->rt = rt;
   ctx->scope = create_neo_scope(NULL);
+  ctx->closures = create_neo_list(NULL);
 
   ctx->null = create_neo_null(ctx);
   return ctx;
@@ -50,7 +52,7 @@ neo_value neo_context_call(neo_context self, neo_closure closure,
                            neo_value *args, int argc) {
   neo_scope current = neo_context_get_scope(self);
   neo_function func = neo_closure_get_function(closure);
-  // TODO: push closure
+  neo_list_push(self->closures, closure);
   neo_context_push_scope(self);
   neo_value *args_next = (neo_value *)malloc(sizeof(neo_value *) * argc);
   neo_scope func_current = neo_context_get_scope(self);
@@ -63,8 +65,24 @@ neo_value neo_context_call(neo_context self, neo_closure closure,
     // TODO: catch block trigger;
   }
   neo_value result = neo_scope_clone_value(current, res);
-  // TODO: pop closure
+  neo_list_pop(self->closures);
   neo_context_pop_scope(self);
   return result;
 }
 neo_value neo_context_get_null(neo_context ctx) { return ctx->null; }
+
+neo_value neo_context_get_closure_value(neo_context ctx, int cindex,
+                                        int index) {
+  neo_list_node node = neo_list_node_next(neo_list_head(ctx->closures));
+  for (int i = 0; i < cindex; i++) { 
+    if (node == neo_list_tail(ctx->closures)) {
+      return neo_context_get_null(ctx);
+    }
+    node = neo_list_node_next(node);
+  }
+  if (node == neo_list_tail(ctx->closures)) {
+    return neo_context_get_null(ctx);
+  }
+  neo_closure closure = (neo_closure)neo_list_node_get(node);
+  return neo_closure_get(ctx, closure, index);
+}
