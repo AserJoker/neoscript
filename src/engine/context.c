@@ -1,5 +1,6 @@
 #include "engine/context.h"
 #include "engine/atom.h"
+#include "engine/closure.h"
 #include "engine/runtime.h"
 #include "engine/scope.h"
 #include "engine/type.h"
@@ -45,9 +46,11 @@ neo_value neo_context_create_value(neo_context self, neo_type type,
   neo_value value = create_neo_value(self->scope, atom);
   return value;
 }
-neo_value neo_context_call(neo_context self, neo_function func, neo_value *args,
-                           int argc) {
+neo_value neo_context_call(neo_context self, neo_closure closure,
+                           neo_value *args, int argc) {
   neo_scope current = neo_context_get_scope(self);
+  neo_function func = neo_closure_get_function(closure);
+  // TODO: push closure
   neo_context_push_scope(self);
   neo_value *args_next = (neo_value *)malloc(sizeof(neo_value *) * argc);
   neo_scope func_current = neo_context_get_scope(self);
@@ -60,6 +63,7 @@ neo_value neo_context_call(neo_context self, neo_function func, neo_value *args,
     // TODO: catch block trigger;
   }
   neo_value result = neo_scope_clone_value(current, res);
+  // TODO: pop closure
   neo_context_pop_scope(self);
   return result;
 }

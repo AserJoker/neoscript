@@ -43,7 +43,7 @@ int check_neo_atom_is_alived(neo_atom atom) {
   neo_list_push(workflow, atom);
   int is_alived = 0;
   while (neo_list_length(workflow)) {
-    neo_atom atom = (neo_atom)neo_list_pop(workflow);
+    neo_atom atom = (neo_atom)neo_list_shift(workflow);
     if (!atom) {
       continue;
     }
