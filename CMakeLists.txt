@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.12)
+project(neoscript)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
+include_directories(./include)
+aux_source_directory(./src/util UTIL)
+aux_source_directory(./src/engine ENGINE)
+add_executable(${PROJECT_NAME}.${CMAKE_BUILD_TYPE} src/main.c ${UTIL} ${ENGINE})
