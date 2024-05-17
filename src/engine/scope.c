@@ -14,7 +14,7 @@ neo_scope create_neo_scope(neo_scope parent) {
   neo_scope scope = (neo_scope)malloc(sizeof(struct _neo_scope));
   scope->parent = parent;
   scope->values = create_neo_list((neo_free_fn)free_neo_value);
-  scope->root = create_neo_atom(NULL);
+  scope->root = create_neo_atom(NULL, NULL);
   return scope;
 }
 void free_neo_scope(neo_scope scope) {
@@ -37,3 +37,7 @@ void neo_scope_remove_value(neo_scope self, neo_value value) {
 }
 
 neo_atom neo_scope_get_root(neo_scope self) { return self->root; }
+neo_value neo_scope_clone_value(neo_scope self, neo_value value) {
+  neo_atom atom = neo_value_get_atom(value);
+  return create_neo_value(self, atom);
+}

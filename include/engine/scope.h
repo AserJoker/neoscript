@@ -13,4 +13,6 @@ neo_scope neo_scope_get_parent(neo_scope self);
 void neo_scope_add_value(neo_scope self, neo_value value);
 void neo_scope_remove_value(neo_scope self, neo_value value);
 neo_atom neo_scope_get_root(neo_scope self);
+
+neo_value neo_scope_clone_value(neo_scope self, neo_value value);
 #endif

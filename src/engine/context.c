@@ -1,4 +1,7 @@
 #include "engine/context.h"
+#include "engine/atom.h"
+#include "engine/scope.h"
+#include "engine/type.h"
 #include "engine/value.h"
 #include "util/list.h"
 #include <stdlib.h>
@@ -31,3 +34,18 @@ void neo_context_pop_scope(neo_context self) {
 }
 
 neo_scope neo_context_get_scope(neo_context self) { return self->scope; }
+neo_value neo_context_create_value(neo_context self, neo_type type,
+                                   void *init) {
+  neo_atom atom = create_neo_atom(type, init);
+  neo_value value = create_neo_value(self->scope, atom);
+  return value;
+}
+neo_value neo_context_call(neo_context self, neo_function func, neo_value *args,
+                           int argv) {
+  neo_scope current = neo_context_get_scope(self);
+  neo_context_push_scope(self);
+  neo_value res = func(self, args, argv);
+  neo_value result = neo_scope_clone_value(current, res);
+  neo_context_pop_scope(self);
+  return result;
+}

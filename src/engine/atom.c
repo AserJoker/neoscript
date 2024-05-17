@@ -14,7 +14,7 @@ struct _neo_atom {
   neo_list children;
 };
 
-neo_atom create_neo_atom(neo_type type) {
+neo_atom create_neo_atom(neo_type type, void *value) {
   neo_atom atom = (neo_atom)malloc(sizeof(struct _neo_atom));
   atom->type = type;
   atom->data = NULL;
@@ -26,9 +26,9 @@ neo_atom create_neo_atom(neo_type type) {
       atom->data = malloc(size);
       memset(atom->data, 0, size);
     }
-    neo_type_operator operator= neo_type_get_operator(type);
-    if (operator.init) {
-      operator.init(atom->data);
+    neo_type_hook hook = neo_type_get_hook(type);
+    if (hook.init) {
+      hook.init(atom->data, value);
     }
   }
   return atom;
@@ -90,9 +90,9 @@ void free_neo_atom(neo_atom atom) {
     }
     free_neo_list(atom->parents);
     if (atom->data) {
-      neo_type_operator operator= neo_type_get_operator(atom->type);
-      if (operator.dispose) {
-        operator.dispose(atom->data);
+      neo_type_hook hook = neo_type_get_hook(atom->type);
+      if (hook.dispose) {
+        hook.dispose(atom->data);
       }
       free(atom->data);
     }
@@ -101,21 +101,11 @@ void free_neo_atom(neo_atom atom) {
 }
 
 int8_t neo_atom_set(neo_atom self, void *data) {
-  neo_type_operator operator= neo_type_get_operator(self->type);
-  if (operator.set) {
-    return operator.set(self, data);
-  }
   size_t size = neo_type_get_size(self->type);
   memcpy(self->data, data, size);
   return 1;
 }
-void *neo_atom_get(neo_atom self) {
-  neo_type_operator operator= neo_type_get_operator(self->type);
-  if (operator.get) {
-    return operator.get(self);
-  }
-  return self->data;
-}
+void *neo_atom_get(neo_atom self) { return self->data; }
 neo_type neo_atom_get_type(neo_atom self) { return self->type; }
 
 void neo_atom_add_ref(neo_atom self, neo_atom parent) {

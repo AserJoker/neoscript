@@ -13,16 +13,11 @@ int main(int argc, char *argv[]) {
   neo_runtime_define_type(rt, neo_int8);
   neo_context ctx = create_neo_context(rt);
 
-  neo_value val = create_neo_value(ctx, create_neo_atom(neo_int8));
-  neo_value val2 = create_neo_value(ctx, create_neo_atom(neo_int8));
+  neo_value val = neo_context_create_value(ctx, neo_int8, NULL);
+  neo_value val2 = neo_context_create_value(ctx, neo_int8, NULL);
 
   neo_atom atom1 = neo_value_get_atom(val);
   neo_atom atom2 = neo_value_get_atom(val2);
-
-  neo_atom_add_ref(atom2, atom1);
-
-  free_neo_value(val2);
-  free_neo_value(val);
 
   free_neo_context(ctx);
   free_neo_runtime(rt);

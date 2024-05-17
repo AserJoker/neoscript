@@ -3,7 +3,7 @@
 #include "engine/context.h"
 #include "engine/type.h"
 typedef struct _neo_atom *neo_atom;
-neo_atom create_neo_atom(neo_type type);
+neo_atom create_neo_atom(neo_type type, void *value);
 void free_neo_atom(neo_atom atom);
 
 int8_t neo_atom_set(neo_atom self, void *data);

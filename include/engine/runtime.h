@@ -4,6 +4,8 @@
 #include "engine/type.h"
 #include <stddef.h>
 
+#define NEO_TYPE_EXCEPTION -1
+
 typedef struct _neo_runtime *neo_runtime;
 
 neo_runtime create_neo_runtime();
