@@ -46,10 +46,16 @@ neo_value neo_context_create_value(neo_context self, neo_type type,
   return value;
 }
 neo_value neo_context_call(neo_context self, neo_function func, neo_value *args,
-                           int argv) {
+                           int argc) {
   neo_scope current = neo_context_get_scope(self);
   neo_context_push_scope(self);
-  neo_value res = func(self, args, argv);
+  neo_value *args_next = (neo_value *)malloc(sizeof(neo_value *) * argc);
+  neo_scope func_current = neo_context_get_scope(self);
+  for (int i = 0; i < argc; i++) {
+    args_next[i] = neo_scope_clone_value(func_current, args[i]);
+  }
+  neo_value res = func(self, args_next, argc);
+  free(args_next);
   if (neo_value_get_type_name(res) == NEO_TYPE_EXCEPTION) {
     // TODO: catch block trigger;
   }

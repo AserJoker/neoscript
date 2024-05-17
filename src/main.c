@@ -6,6 +6,15 @@
 #include "engine/value.h"
 #include "util/list.h"
 #include <stdint.h>
+#include <stdio.h>
+
+neo_value neo_print(neo_context ctx, neo_value *args, int argc) {
+  neo_value arg = args[0];
+  int8_t *val = (int8_t *)neo_value_get_data(arg);
+  printf("%d\n", *val);
+  return neo_context_get_null(ctx);
+}
+
 #define NEO_TYPE_INT8 1
 int main(int argc, char *argv[]) {
   neo_runtime rt = create_neo_runtime();
