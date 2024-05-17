@@ -13,4 +13,7 @@ void neo_value_set_atom(neo_value self, neo_atom atom);
 
 neo_type neo_value_get_type(neo_value self);
 void *neo_value_get_data(neo_value self);
+
+#define neo_value_get_type_name(val)                                           \
+  (neo_type_get_name(neo_value_get_type(val)))
 #endif

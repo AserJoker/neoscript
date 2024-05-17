@@ -17,6 +17,7 @@ typedef void (*neo_hook_dispose_fn)(void *buf);
 typedef struct _neo_type_hook {
   neo_hook_init_fn init;
   neo_hook_dispose_fn dispose;
+  neo_function feature;
 } neo_type_hook;
 
 neo_type create_neo_type(const int32_t name, const size_t size,

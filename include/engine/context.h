@@ -12,8 +12,9 @@ void neo_context_push_scope(neo_context self);
 void neo_context_pop_scope(neo_context self);
 neo_scope neo_context_get_scope(neo_context self);
 
+neo_value neo_context_get_null(neo_context ctx);
+
 neo_value neo_context_call(neo_context self, neo_function func, neo_value *args,
                            int argv);
-
 neo_value neo_context_create_value(neo_context self, neo_type type, void *init);
 #endif
