@@ -29,6 +29,8 @@ neo_atom create_neo_atom(neo_type type, void *value) {
     neo_type_hook hook = neo_type_get_hook(type);
     if (hook.init) {
       hook.init(atom->data, value);
+    } else if (value) {
+      memcpy(atom->data, value, size);
     }
   }
   return atom;

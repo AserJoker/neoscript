@@ -2,6 +2,7 @@
 #define __NEO_ENGINE_CONTEXT__
 #include "engine/closure.h"
 #include "engine/scope.h"
+#include "engine/type.h"
 #include "runtime.h"
 typedef struct _neo_context *neo_context;
 neo_context create_neo_context(neo_runtime rt);
@@ -20,5 +21,9 @@ neo_value neo_context_get_closure_value(neo_context ctx, int closure,
 
 neo_value neo_context_call(neo_context self, neo_closure closure,
                            neo_value *args, int argv);
+
 neo_value neo_context_create_value(neo_context self, neo_type type, void *init);
+
+neo_value neo_context_operator(neo_context self, uint32_t opt, int argc,
+                               neo_value *argv);
 #endif

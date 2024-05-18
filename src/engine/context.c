@@ -4,6 +4,7 @@
 #include "engine/runtime.h"
 #include "engine/scope.h"
 #include "engine/type.h"
+#include "engine/type/exception.h"
 #include "engine/type/null.h"
 #include "engine/value.h"
 #include "util/list.h"
@@ -59,7 +60,7 @@ neo_value neo_context_call(neo_context self, neo_closure closure,
   for (int i = 0; i < argc; i++) {
     args_next[i] = neo_scope_clone_value(func_current, args[i]);
   }
-  neo_value res = func(self, args_next, argc);
+  neo_value res = func(self, argc, args_next);
   free(args_next);
   if (neo_value_get_type_name(res) == NEO_TYPE_EXCEPTION) {
     // TODO: catch block trigger;
@@ -74,7 +75,7 @@ neo_value neo_context_get_null(neo_context ctx) { return ctx->null; }
 neo_value neo_context_get_closure_value(neo_context ctx, int cindex,
                                         int index) {
   neo_list_node node = neo_list_node_next(neo_list_head(ctx->closures));
-  for (int i = 0; i < cindex; i++) { 
+  for (int i = 0; i < cindex; i++) {
     if (node == neo_list_tail(ctx->closures)) {
       return neo_context_get_null(ctx);
     }
@@ -85,4 +86,12 @@ neo_value neo_context_get_closure_value(neo_context ctx, int cindex,
   }
   neo_closure closure = (neo_closure)neo_list_node_get(node);
   return neo_closure_get(ctx, closure, index);
+}
+neo_value neo_context_operator(neo_context self, uint32_t opt, int argc,
+                               neo_value *argv) {
+  neo_operator_fn operator= neo_runtime_get_operator(self->rt, opt);
+  if (operator) {
+    return operator(self, opt, argc, argv);
+  }
+  return NULL;
 }

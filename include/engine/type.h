@@ -8,8 +8,8 @@ typedef struct _neo_type *neo_type;
 typedef struct _neo_atom *neo_atom;
 typedef struct _neo_value *neo_value;
 
-typedef neo_value (*neo_function)(neo_context ctx, neo_value *args,
-                                  size_t argc);
+typedef neo_value (*neo_function)(neo_context ctx, size_t argc,
+                                  neo_value *argv);
 
 typedef void (*neo_hook_init_fn)(void *buf, void *input);
 typedef void (*neo_hook_dispose_fn)(void *buf);
@@ -17,7 +17,6 @@ typedef void (*neo_hook_dispose_fn)(void *buf);
 typedef struct _neo_type_hook {
   neo_hook_init_fn init;
   neo_hook_dispose_fn dispose;
-  neo_function feature;
 } neo_type_hook;
 
 neo_type create_neo_type(const int32_t name, const size_t size,

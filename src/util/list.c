@@ -105,6 +105,7 @@ void *neo_list_shift(neo_list self) {
     node->data = NULL;
     free_neo_list_node(self->head->next);
     self->size--;
+    return data;
   }
   return NULL;
 }
