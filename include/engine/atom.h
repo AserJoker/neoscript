@@ -1,6 +1,5 @@
 #ifndef __NEO_ENGINE_ATOM__
 #define __NEO_ENGINE_ATOM__
-#include "engine/context.h"
 #include "engine/type.h"
 typedef struct _neo_atom *neo_atom;
 neo_atom create_neo_atom(neo_type type, void *value);

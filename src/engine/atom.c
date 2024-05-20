@@ -1,8 +1,7 @@
 #include "engine/atom.h"
-#include "engine/context.h"
-#include "engine/runtime.h"
 #include "engine/type.h"
 #include "util/list.h"
+#include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +15,7 @@ struct _neo_atom {
 
 neo_atom create_neo_atom(neo_type type, void *value) {
   neo_atom atom = (neo_atom)malloc(sizeof(struct _neo_atom));
+  assert(atom != NULL);
   atom->type = type;
   atom->data = NULL;
   atom->parents = create_neo_list(NULL);
@@ -72,6 +72,9 @@ int check_neo_atom_is_alived(neo_atom atom) {
 }
 
 void free_neo_atom(neo_atom atom) {
+  if (!atom) {
+    return;
+  }
   if (!check_neo_atom_is_alived(atom)) {
     while (neo_list_length(atom->children)) {
       neo_list_node node = neo_list_node_next(neo_list_head(atom->children));

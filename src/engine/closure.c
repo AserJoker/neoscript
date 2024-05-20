@@ -5,22 +5,34 @@
 #include "engine/type.h"
 #include "engine/value.h"
 #include "util/list.h"
+#include "util/strings.h"
+#include <assert.h>
 #include <stdlib.h>
 
 struct _neo_closure {
   neo_function func;
   neo_list values;
   neo_atom root;
+  char *name;
 };
 
-neo_closure create_neo_closure(neo_context ctx, neo_function func) {
+neo_closure create_neo_closure(neo_context ctx, neo_function func,
+                               const char *name) {
   neo_closure closure = (neo_closure)malloc(sizeof(struct _neo_closure));
+  assert(closure != NULL);
   closure->func = func;
   closure->root = create_neo_atom(NULL, NULL);
   closure->values = create_neo_list((neo_free_fn)free_neo_atom);
+  closure->name = strings_clone(name);
   return closure;
 }
 void free_neo_closure(neo_closure closure) {
+  if (!closure) {
+    return;
+  }
+  if (closure->name) {
+    free(closure->name);
+  }
   free_neo_list(closure->values);
   free_neo_atom(closure->root);
   free(closure);
@@ -48,3 +60,4 @@ neo_value neo_closure_get(neo_context ctx, neo_closure self, int32_t index) {
   }
   return neo_context_get_null(ctx);
 }
+const char *neo_closure_get_name(neo_closure self) { return self->name; }

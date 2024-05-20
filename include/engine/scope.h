@@ -1,7 +1,6 @@
 #ifndef __NEO_ENGINE_SCOPE__
 #define __NEO_ENGINE_SCOPE__
 
-#include "util/list.h"
 typedef struct _neo_scope *neo_scope;
 typedef struct _neo_value *neo_value;
 typedef struct _neo_atom *neo_atom;

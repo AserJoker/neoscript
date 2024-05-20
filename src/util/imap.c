@@ -1,5 +1,6 @@
 #include "util/imap.h"
 #include "util/list.h"
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 typedef struct _neo_imap *neo_imap;
@@ -19,6 +20,9 @@ neo_imap create_neo_imap(neo_free_fn fn) {
   return imap;
 }
 void free_neo_imap(neo_imap imap) {
+  if (!imap) {
+    return;
+  }
   if (imap->autofree) {
     neo_list_node node = neo_list_head(imap->items);
     while (node != neo_list_tail(imap->items)) {
@@ -50,6 +54,7 @@ void neo_imap_set(neo_imap self, int32_t key, void *value) {
     }
   } else {
     item = (neo_imap_node)malloc(sizeof(struct _neo_imap_node));
+    assert(item != NULL);
     item->key = key;
     item->data = value;
     neo_list_push(self->items, item);

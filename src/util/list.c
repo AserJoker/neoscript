@@ -17,6 +17,7 @@ struct _neo_list {
 };
 neo_list_node create_neo_list_node(neo_list list) {
   neo_list_node node = (neo_list_node)malloc(sizeof(struct _neo_list_node));
+  assert(node != NULL);
   node->data = NULL;
   node->last = NULL;
   node->next = NULL;
@@ -24,14 +25,19 @@ neo_list_node create_neo_list_node(neo_list list) {
   return node;
 }
 void free_neo_list_node(neo_list_node node) {
+  if (!node) {
+    return;
+  }
   if (node->next) {
     node->next->last = node->last;
   }
   if (node->last) {
     node->last->next = node->next;
   }
-  if (node->autofree && node->data) {
-    node->autofree(node->data);
+  if (node->autofree) {
+    if (node->data) {
+      node->autofree(node->data);
+    }
   }
   free(node);
 }
@@ -43,18 +49,20 @@ neo_list create_neo_list(neo_free_fn fn) {
   list->head->next = list->tail;
   list->tail->last = list->head;
   list->size = 0;
+  list->autofree = NULL;
   list->autofree = fn;
   return list;
 }
 void free_neo_list(neo_list list) {
   if (list) {
-    while (list->head) {
-      neo_list_node next = list->head->next;
-      free_neo_list_node(list->head);
-      list->head = next;
+    neo_list_node node = list->head->next;
+    while (list->size) {
+      neo_list_remove(list, node);
+      node = list->head->next;
     }
+    free(list->head);
+    free(list->tail);
     free(list);
-    list = NULL;
   }
 }
 
@@ -133,6 +141,9 @@ neo_list_node neo_list_find(neo_list self, void *data) {
   return NULL;
 }
 void neo_list_remove(neo_list self, neo_list_node position) {
+  if (!position) {
+    return;
+  }
   if (self->size) {
     free_neo_list_node(position);
     self->size--;

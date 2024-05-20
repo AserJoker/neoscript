@@ -1,9 +1,7 @@
 #include "engine/value.h"
 #include "engine/atom.h"
-#include "engine/context.h"
 #include "engine/scope.h"
 #include "engine/type.h"
-#include "util/list.h"
 #include <stdlib.h>
 struct _neo_value {
   neo_atom atom;
@@ -18,6 +16,9 @@ neo_value create_neo_value(neo_scope current, neo_atom atom) {
   return val;
 }
 void free_neo_value(neo_value value) {
+  if (!value) {
+    return;
+  }
   if (value->scope) {
     neo_scope scope = value->scope;
     value->scope = NULL;
