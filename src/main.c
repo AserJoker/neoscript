@@ -16,13 +16,13 @@ typedef struct _neo_exception_impl {
   neo_list trace;
 } *neo_exception_impl;
 
-void neo_string_init(void *target, void *source, void *_) {
+void neo_exception_init(void *target, void *source, void *_) {
   neo_exception_impl dst = (neo_exception_impl)target;
   neo_exception_impl src = (neo_exception_impl)source;
   dst->message = strings_clone(src->message);
   dst->trace = src->trace;
 }
-void neo_string_dispose(void *buf, void *_) {
+void neo_exception_dispose(void *buf, void *_) {
   neo_exception_impl s = (neo_exception_impl)buf;
   free_neo_list(s->trace);
   free(s->message);
@@ -62,7 +62,7 @@ void neo_error(neo_context ctx, neo_value error, void *_) {
 
 int main(int argc, char *argv[]) {
   neo_runtime rt = create_neo_runtime();
-  neo_type_hook hook = {neo_string_init, 0, neo_string_dispose, 0};
+  neo_type_hook hook = {neo_exception_init, 0, neo_exception_dispose, 0};
   neo_type neo_string = create_neo_type(
       NEO_TYPE_EXCEPTION, sizeof(struct _neo_exception_impl), &hook);
   neo_runtime_define_type(rt, neo_string);
