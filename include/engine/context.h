@@ -5,7 +5,11 @@
 #include "engine/type.h"
 #include "runtime.h"
 #include "util/list.h"
+#include <setjmp.h>
 typedef struct _neo_context *neo_context;
+
+typedef void (*neo_error_callback)(neo_context ctx, neo_value error, void *_);
+
 neo_context create_neo_context(neo_runtime rt);
 void free_neo_context(neo_context ctx);
 
@@ -15,9 +19,9 @@ void neo_context_push_scope(neo_context self);
 void neo_context_pop_scope(neo_context self);
 neo_scope neo_context_get_scope(neo_context self);
 
-neo_value neo_context_get_null(neo_context ctx);
+neo_value neo_context_get_null(neo_context self);
 
-neo_value neo_context_get_closure_value(neo_context ctx, int index);
+neo_value neo_context_get_closure_value(neo_context self, int index);
 
 neo_value neo_context_call(neo_context self, neo_closure closure,
                            neo_value *args, int argv, const char *filename,
@@ -30,4 +34,15 @@ neo_value neo_context_operator(neo_context self, uint32_t opt, int argc,
 
 neo_list neo_context_trace(neo_context self, const char *filename, int line,
                            int column);
+
+jmp_buf *neo_context_try_start(neo_context self);
+
+void neo_context_try_end(neo_context self);
+
+neo_value neo_context_catch(neo_context self);
+
+void neo_context_throw(neo_context self, neo_value exception);
+
+void neo_context_set_error_callback(neo_context self, neo_error_callback cb,
+                                    void *_);
 #endif

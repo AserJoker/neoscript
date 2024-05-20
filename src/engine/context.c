@@ -9,9 +9,28 @@
 #include "util/list.h"
 #include "util/strings.h"
 #include <assert.h>
+#include <setjmp.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+typedef struct _neo_try_block *neo_try_block;
+struct _neo_try_block {
+  jmp_buf context;
+  neo_scope scope;
+  neo_value error;
+};
+
+neo_try_block create_neo_try_block(neo_scope scope) {
+  neo_try_block block = (neo_try_block)malloc(sizeof(struct _neo_try_block));
+  memset(block->context, 0, sizeof(block->context));
+  block->scope = scope;
+  block->error = NULL;
+  return block;
+}
+
+void free_neo_try_block(neo_try_block block) { free(block); }
 
 typedef struct _neo_call_frame *neo_call_frame;
 void neo_context_push_call_frame(neo_context self, const char *funcname,
@@ -66,18 +85,25 @@ char *neo_call_frame_to_string(neo_call_frame frame) {
 struct _neo_context {
   neo_runtime rt;
   neo_scope scope;
-  neo_list closures;
+  neo_closure closure;
   neo_call_frame callstacks;
   neo_value null;
+  neo_list trystacks;
+
+  neo_error_callback error_cb;
+  void *error_cb_arg;
 };
 
 neo_context create_neo_context(neo_runtime rt) {
   neo_context ctx = (neo_context)malloc(sizeof(struct _neo_context));
   assert(ctx != NULL);
+  ctx->error_cb = NULL;
+  ctx->error_cb_arg = NULL;
   ctx->rt = rt;
   ctx->scope = create_neo_scope(NULL);
-  ctx->closures = create_neo_list(NULL);
+  ctx->closure = NULL;
   ctx->callstacks = create_neo_call_frame(NULL);
+  ctx->trystacks = create_neo_list((neo_free_fn)free_neo_try_block);
   ctx->null = create_neo_null(ctx);
 
   return ctx;
@@ -86,8 +112,8 @@ void free_neo_context(neo_context ctx) {
   if (!ctx) {
     return;
   }
+  free_neo_list(ctx->trystacks);
   free_neo_call_frame(ctx->callstacks);
-  free_neo_list(ctx->closures);
   while (ctx->scope) {
     neo_context_pop_scope(ctx);
   }
@@ -148,11 +174,13 @@ neo_value neo_context_call(neo_context self, neo_closure closure,
   neo_scope current = neo_context_get_scope(self);
 
   neo_function func = neo_closure_get_function(closure);
+  jmp_buf *context = neo_context_try_start(self);
 
   neo_context_push_call_frame(self, neo_closure_get_name(closure), filename,
                               line, column);
 
-  neo_list_push(self->closures, closure);
+  neo_closure last = self->closure;
+  self->closure = closure;
 
   neo_context_push_scope(self);
 
@@ -162,25 +190,33 @@ neo_value neo_context_call(neo_context self, neo_closure closure,
   for (int i = 0; i < argc; i++) {
     args_next[i] = neo_scope_clone_value(func_current, args[i]);
   }
-
-  neo_value res = func(self, argc, args);
+  neo_value res = NULL;
+  int is_error = 0;
+  if (!setjmp(*context)) {
+    res = func(self, argc, args);
+    neo_context_try_end(self);
+  } else {
+    res = neo_context_catch(self);
+    is_error = 1;
+  }
   free(args_next);
 
   neo_value result = neo_scope_clone_value(current, res);
 
   neo_context_pop_scope(self);
 
-  neo_list_pop(self->closures);
+  self->closure = closure;
 
   neo_context_pop_call_frame(self);
+  if (is_error) {
+    neo_context_throw(self, result);
+  }
   return result;
 }
-neo_value neo_context_get_null(neo_context ctx) { return ctx->null; }
+neo_value neo_context_get_null(neo_context self) { return self->null; }
 
-neo_value neo_context_get_closure_value(neo_context ctx, int index) {
-  neo_list_node node = neo_list_node_next(neo_list_head(ctx->closures));
-  neo_closure closure = (neo_closure)neo_list_node_get(node);
-  return neo_closure_get(ctx, closure, index);
+neo_value neo_context_get_closure_value(neo_context self, int index) {
+  return neo_closure_get(self, self->closure, index);
 }
 neo_value neo_context_operator(neo_context self, uint32_t opt, int argc,
                                neo_value *argv) {
@@ -208,4 +244,41 @@ neo_list neo_context_trace(neo_context self, const char *filename, int line,
     frame = frame->parent;
   }
   return trace;
+}
+
+jmp_buf *neo_context_try_start(neo_context self) {
+  neo_try_block block = create_neo_try_block(self->scope);
+  neo_list_push(self->trystacks, block);
+  return &block->context;
+}
+
+void neo_context_try_end(neo_context self) {
+  neo_try_block block = neo_list_pop(self->trystacks);
+  if (block) {
+    free_neo_try_block(block);
+  }
+}
+
+neo_value neo_context_catch(neo_context self) {
+  neo_try_block block = neo_list_pop(self->trystacks);
+  neo_value error = block->error;
+  free(block);
+  return error;
+}
+
+void neo_context_throw(neo_context self, neo_value exception) {
+  neo_try_block block = (neo_try_block)neo_list_node_get(
+      neo_list_node_last(neo_list_tail(self->trystacks)));
+  if (block) {
+    block->error = neo_scope_clone_value(block->scope, exception);
+    longjmp(block->context, 1);
+  } else if (self->error_cb) {
+    self->error_cb(self, exception, self->error_cb_arg);
+  }
+}
+
+void neo_context_set_error_callback(neo_context self, neo_error_callback cb,
+                                    void *arg) {
+  self->error_cb = cb;
+  self->error_cb_arg = arg;
 }

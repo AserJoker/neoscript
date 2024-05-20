@@ -5,7 +5,6 @@
 #include <stddef.h>
 
 #define NEO_TYPE_NULL 0
-#define NEO_TYPE_CLOSURE -2
 
 typedef struct _neo_runtime *neo_runtime;
 
