@@ -28,7 +28,7 @@ neo_atom create_neo_atom(neo_type type, void *value) {
     }
     neo_type_hook hook = neo_type_get_hook(type);
     if (hook.init) {
-      hook.init(atom->data, value);
+      hook.init(atom->data, value, hook.init_arg);
     } else if (value) {
       memcpy(atom->data, value, size);
     }
@@ -94,7 +94,7 @@ void free_neo_atom(neo_atom atom) {
     if (atom->data) {
       neo_type_hook hook = neo_type_get_hook(atom->type);
       if (hook.dispose) {
-        hook.dispose(atom->data);
+        hook.dispose(atom->data, hook.dispose_arg);
       }
       free(atom->data);
     }

@@ -11,12 +11,14 @@ typedef struct _neo_value *neo_value;
 typedef neo_value (*neo_function)(neo_context ctx, size_t argc,
                                   neo_value *argv);
 
-typedef void (*neo_hook_init_fn)(void *buf, void *input);
-typedef void (*neo_hook_dispose_fn)(void *buf);
+typedef void (*neo_hook_init_fn)(void *buf, void *input, void *);
+typedef void (*neo_hook_dispose_fn)(void *buf, void *);
 
 typedef struct _neo_type_hook {
   neo_hook_init_fn init;
+  void *init_arg;
   neo_hook_dispose_fn dispose;
+  void *dispose_arg;
 } neo_type_hook;
 
 neo_type create_neo_type(const int32_t name, const size_t size,

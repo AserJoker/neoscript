@@ -10,7 +10,7 @@ typedef struct _neo_exception_impl {
   char *message;
 } neo_exception_impl;
 
-static void init(void *buf, void *body) {
+static void init(void *buf, void *body, void *arg) {
   neo_exception_impl *target = (neo_exception_impl *)buf;
   neo_exception_impl *source = (neo_exception_impl *)body;
   size_t len = strlen(source->message);
@@ -18,12 +18,12 @@ static void init(void *buf, void *body) {
   strcpy(target->message, source->message);
   target->message[len] = 0;
 }
-static void dispose(void *buf) {
+static void dispose(void *buf, void *arg) {
   neo_exception_impl *source = (neo_exception_impl *)buf;
   free(source->message);
 }
 void neo_exception_init(neo_runtime rt) {
-  neo_type_hook hook = {init, dispose};
+  neo_type_hook hook = {init, 0, dispose, 0};
   neo_type neo_exception = create_neo_type(
       NEO_TYPE_EXCEPTION, sizeof(struct _neo_exception_impl), &hook);
   neo_runtime_define_type(rt, neo_exception);

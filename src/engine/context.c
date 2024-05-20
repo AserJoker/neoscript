@@ -9,6 +9,7 @@
 #include "engine/value.h"
 #include "util/list.h"
 #include <stdlib.h>
+
 struct _neo_context {
   neo_runtime rt;
   neo_scope scope;
@@ -22,6 +23,7 @@ neo_context create_neo_context(neo_runtime rt) {
   ctx->closures = create_neo_list(NULL);
 
   ctx->null = create_neo_null(ctx);
+
   return ctx;
 }
 void free_neo_context(neo_context ctx) {
@@ -62,9 +64,6 @@ neo_value neo_context_call(neo_context self, neo_closure closure,
   }
   neo_value res = func(self, argc, args_next);
   free(args_next);
-  if (neo_value_get_type_name(res) == NEO_TYPE_EXCEPTION) {
-    // TODO: catch block trigger;
-  }
   neo_value result = neo_scope_clone_value(current, res);
   neo_list_pop(self->closures);
   neo_context_pop_scope(self);
