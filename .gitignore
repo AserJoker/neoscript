@@ -1,6 +1,2 @@
 .clangd
 build
-*.Debug
-*.Release
-*.so
-Test*

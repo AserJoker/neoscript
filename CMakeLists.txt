@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
 project(neo-script)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 set(NEO_SCRIPT_NAME ${PROJECT_NAME})
 include_directories(./include)
 aux_source_directory(./src/util UTIL)
