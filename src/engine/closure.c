@@ -14,6 +14,7 @@ struct _neo_closure {
   neo_list values;
   neo_atom root;
   char *name;
+  void *arg;
 };
 
 neo_closure create_neo_closure(neo_context ctx, neo_function func,
@@ -24,6 +25,7 @@ neo_closure create_neo_closure(neo_context ctx, neo_function func,
   closure->root = create_neo_atom(NULL, NULL);
   closure->values = create_neo_list((neo_free_fn)free_neo_atom);
   closure->name = strings_clone(name);
+  closure->arg = NULL;
   return closure;
 }
 void free_neo_closure(neo_closure closure) {
@@ -61,3 +63,6 @@ neo_value neo_closure_get(neo_context ctx, neo_closure self, int32_t index) {
   return neo_context_get_null(ctx);
 }
 const char *neo_closure_get_name(neo_closure self) { return self->name; }
+
+void neo_closure_set_arg(neo_closure self, void *arg) { self->arg = arg; }
+void *neo_closure_get_arg(neo_closure self) { return self->arg; }

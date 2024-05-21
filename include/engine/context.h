@@ -21,11 +21,11 @@ neo_scope neo_context_get_scope(neo_context self);
 
 neo_value neo_context_get_null(neo_context self);
 
-neo_value neo_context_get_closure_value(neo_context self, int index);
-
 neo_value neo_context_call(neo_context self, neo_closure closure,
                            neo_value *args, int argv, const char *filename,
                            int line, int column);
+
+neo_closure neo_context_get_closure(neo_context self);
 
 neo_value neo_context_create_value(neo_context self, neo_type type, void *init);
 
@@ -45,4 +45,7 @@ void neo_context_throw(neo_context self, neo_value exception);
 
 void neo_context_set_error_callback(neo_context self, neo_error_callback cb,
                                     void *_);
+
+neo_value neo_context_get_result(neo_context self);
+
 #endif

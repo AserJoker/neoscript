@@ -1,5 +1,6 @@
 #include "engine/runtime.h"
 #include "engine/type.h"
+#include "engine/type/exception.h"
 #include "engine/type/null.h"
 #include "util/imap.h"
 #include "util/list.h"
@@ -18,7 +19,7 @@ neo_runtime create_neo_runtime() {
   rt->operators = create_neo_imap(NULL);
 
   neo_null_init(rt);
-
+  neo_init_exception(rt);
   return rt;
 }
 

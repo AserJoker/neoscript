@@ -1,0 +1,5 @@
+#ifndef __NEO_VM_OPERATOR_OPERATOR__
+#define __NEO_VM_OPERATOR_OPERATOR__
+#define NEO_VM_OPT_CONVERT 1
+#define NEO_VM_OPT_ADD 2
+#endif

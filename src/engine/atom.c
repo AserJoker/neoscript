@@ -105,10 +105,9 @@ void free_neo_atom(neo_atom atom) {
   }
 }
 
-int8_t neo_atom_set(neo_atom self, void *data) {
+void neo_atom_set(neo_atom self, void *data) {
   size_t size = neo_type_get_size(self->type);
   memcpy(self->data, data, size);
-  return 1;
 }
 void *neo_atom_get(neo_atom self) { return self->data; }
 neo_type neo_atom_get_type(neo_atom self) { return self->type; }
@@ -124,3 +123,7 @@ void neo_atom_remove_ref(neo_atom self, neo_atom parent) {
   neo_list_remove(parent->children, node);
   free_neo_atom(self);
 }
+neo_atom neo_atom_copy_val(neo_atom src, void *_) {
+  return create_neo_atom(src->type, src->data);
+}
+neo_atom neo_atom_copy_ref(neo_atom src, void *_) { return src; }

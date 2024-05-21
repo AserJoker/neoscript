@@ -4,6 +4,7 @@
 #include "engine/runtime.h"
 #include "engine/scope.h"
 #include "engine/type.h"
+#include "engine/type/exception.h"
 #include "engine/type/null.h"
 #include "engine/value.h"
 #include "util/list.h"
@@ -15,7 +16,30 @@
 #include <stdlib.h>
 #include <string.h>
 
+void neo_context_default_error_callback(neo_context ctx, neo_value error,
+                                        void *_) {
+  const char *message = neo_exception_get_message(error);
+  neo_list stack = neo_exception_get_stack(error);
+  neo_value caused = neo_exception_get_caused(error, ctx);
+  fprintf(stderr, "Error: %s", message);
+  if (stack) {
+    neo_list_node node = neo_list_head(stack);
+    while (node != neo_list_tail(stack)) {
+      char *frame = (char *)neo_list_node_get(node);
+      if (frame) {
+        fprintf(stderr, "\n\tat %s", frame);
+      }
+      node = neo_list_node_next(node);
+    }
+    fprintf(stderr, "\n");
+  }
+  if (caused) {
+    neo_context_default_error_callback(ctx, caused, NULL);
+  }
+}
+
 typedef struct _neo_try_block *neo_try_block;
+
 struct _neo_try_block {
   jmp_buf context;
   neo_scope scope;
@@ -84,20 +108,22 @@ char *neo_call_frame_to_string(neo_call_frame frame) {
 }
 struct _neo_context {
   neo_runtime rt;
+
   neo_scope scope;
   neo_closure closure;
   neo_call_frame callstacks;
-  neo_value null;
   neo_list trystacks;
+  neo_value result;
 
   neo_error_callback error_cb;
   void *error_cb_arg;
+  neo_value null;
 };
 
 neo_context create_neo_context(neo_runtime rt) {
   neo_context ctx = (neo_context)malloc(sizeof(struct _neo_context));
   assert(ctx != NULL);
-  ctx->error_cb = NULL;
+  ctx->error_cb = neo_context_default_error_callback;
   ctx->error_cb_arg = NULL;
   ctx->rt = rt;
   ctx->scope = create_neo_scope(NULL);
@@ -105,6 +131,7 @@ neo_context create_neo_context(neo_runtime rt) {
   ctx->callstacks = create_neo_call_frame(NULL);
   ctx->trystacks = create_neo_list((neo_free_fn)free_neo_try_block);
   ctx->null = create_neo_null(ctx);
+  ctx->result = NULL;
 
   return ctx;
 }
@@ -171,6 +198,7 @@ neo_value neo_context_create_value(neo_context self, neo_type type,
 neo_value neo_context_call(neo_context self, neo_closure closure,
                            neo_value *args, int argc, const char *filename,
                            int line, int column) {
+  self->result = NULL;
   neo_scope current = neo_context_get_scope(self);
 
   neo_function func = neo_closure_get_function(closure);
@@ -211,19 +239,22 @@ neo_value neo_context_call(neo_context self, neo_closure closure,
   if (is_error) {
     neo_context_throw(self, result);
   }
+  self->result = result;
   return result;
 }
 neo_value neo_context_get_null(neo_context self) { return self->null; }
 
-neo_value neo_context_get_closure_value(neo_context self, int index) {
-  return neo_closure_get(self, self->closure, index);
-}
 neo_value neo_context_operator(neo_context self, uint32_t opt, int argc,
                                neo_value *argv) {
+  self->result = NULL;
   neo_operator_fn operator= neo_runtime_get_operator(self->rt, opt);
   if (operator) {
-    return operator(self, opt, argc, argv);
+    neo_value result = operator(self, opt, argc, argv);
+    self->result = result;
+    return result;
   }
+  neo_context_throw(self, create_neo_exception(self, "unsupport operator", NULL,
+                                               __FILE__, __LINE__, 1));
   return NULL;
 }
 neo_list neo_context_trace(neo_context self, const char *filename, int line,
@@ -245,6 +276,8 @@ neo_list neo_context_trace(neo_context self, const char *filename, int line,
   }
   return trace;
 }
+
+neo_closure neo_context_get_closure(neo_context self) { return self->closure; }
 
 jmp_buf *neo_context_try_start(neo_context self) {
   neo_try_block block = create_neo_try_block(self->scope);
@@ -282,3 +315,5 @@ void neo_context_set_error_callback(neo_context self, neo_error_callback cb,
   self->error_cb = cb;
   self->error_cb_arg = arg;
 }
+
+neo_value neo_context_get_result(neo_context self) { return self->result; }
