@@ -7,6 +7,7 @@
 #include "engine/value.h"
 #include "vm/type.h"
 #include <stdint.h>
+#include <stdio.h>
 
 void neo_int16_init(void *target, void *source, void *_) {
   int16_t *dst = (int16_t *)target;
@@ -35,9 +36,11 @@ neo_value create_neo_int16(neo_context ctx, int16_t value) {
 
 int16_t neo_value_to_int16(neo_context ctx, neo_value value) {
   if (neo_value_get_type_name(value) != NEO_VM_TYPE_INT16) {
-    neo_context_throw(ctx,
-                      create_neo_exception(ctx, "unsupport value type boolean",
-                                           NULL, __FILE__, __LINE__, 1));
+    char buf[1024] = {0};
+    sprintf(buf, "cannot get int16 value from:0x%x",
+            neo_value_get_type_name(value));
+    neo_context_throw(
+        ctx, create_neo_exception(ctx, buf, NULL, __FILE__, __LINE__, 1));
   }
   int16_t *data = (int16_t *)neo_value_get_data(value);
   return *data;

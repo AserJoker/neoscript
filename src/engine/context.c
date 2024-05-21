@@ -36,6 +36,9 @@ void neo_context_default_error_callback(neo_context ctx, neo_value error,
   if (caused) {
     neo_context_default_error_callback(ctx, caused, NULL);
   }
+  if (!stack && !caused) {
+    fprintf(stderr, "\n");
+  }
 }
 
 typedef struct _neo_try_block *neo_try_block;

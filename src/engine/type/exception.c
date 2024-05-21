@@ -60,11 +60,11 @@ neo_value create_neo_exception(neo_context ctx, const char *message,
 
 const char *neo_exception_get_message(neo_value self) {
   if (!self) {
-    return "unknown exception";
+    return "unknown error";
   }
   neo_type value_type = neo_value_get_type(self);
   if (!value_type || neo_type_get_name(value_type) != NEO_TYPE_EXCEPTION) {
-    return "unknown exception";
+    return "unknown error";
   }
   neo_exception_impl impl = (neo_exception_impl)neo_value_get_data(self);
   return impl->message;

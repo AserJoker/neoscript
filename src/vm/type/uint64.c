@@ -7,6 +7,7 @@
 #include "engine/value.h"
 #include "vm/type.h"
 #include <stdint.h>
+#include <stdio.h>
 
 void neo_uint64_init(void *target, void *source, void *_) {
   uint64_t *dst = (uint64_t *)target;
@@ -33,9 +34,11 @@ neo_value create_neo_uint64(neo_context ctx, uint64_t value) {
 
 uint64_t neo_value_to_uint64(neo_context ctx, neo_value value) {
   if (neo_value_get_type_name(value) != NEO_VM_TYPE_UINT64) {
-    neo_context_throw(ctx,
-                      create_neo_exception(ctx, "unsupport value type boolean",
-                                           NULL, __FILE__, __LINE__, 1));
+    char buf[1024] = {0};
+    sprintf(buf, "cannot get uint64 value from:0x%x",
+            neo_value_get_type_name(value));
+    neo_context_throw(
+        ctx, create_neo_exception(ctx, buf, NULL, __FILE__, __LINE__, 1));
   }
   uint64_t *data = (uint64_t *)neo_value_get_data(value);
   return *data;
