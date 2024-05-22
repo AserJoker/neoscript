@@ -35,13 +35,7 @@ neo_value create_neo_uint8(neo_context ctx, uint8_t value) {
 }
 
 uint8_t neo_value_to_uint8(neo_context ctx, neo_value value) {
-  if (neo_value_get_type_name(value) != NEO_VM_TYPE_UINT8) {
-    char buf[1024] = {0};
-    sprintf(buf, "cannot get uint8 value from:0x%x",
-            neo_value_get_type_name(value));
-    neo_context_throw(
-        ctx, create_neo_exception(ctx, buf, NULL, __FILE__, __LINE__, 1));
-  }
+  CHECK_TYPE(NEO_VM_TYPE_UINT8);
   uint8_t *data = (uint8_t *)neo_value_get_data(value);
   return *data;
 }

@@ -21,9 +21,9 @@ neo_scope neo_context_get_scope(neo_context self);
 
 neo_value neo_context_get_null(neo_context self);
 
-neo_value neo_context_call(neo_context self, neo_closure closure,
-                           neo_value *args, int argv, const char *filename,
-                           int line, int column);
+neo_value neo_context_call(neo_context self, neo_closure closure, int argc,
+                           neo_value *argv, const char *filename, int line,
+                           int column);
 
 neo_closure neo_context_get_closure(neo_context self);
 

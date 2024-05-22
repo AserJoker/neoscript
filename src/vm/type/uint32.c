@@ -34,13 +34,7 @@ neo_value create_neo_uint32(neo_context ctx, uint32_t value) {
 }
 
 uint32_t neo_value_to_uint32(neo_context ctx, neo_value value) {
-  if (neo_value_get_type_name(value) != NEO_VM_TYPE_UINT32) {
-    char buf[1024] = {0};
-    sprintf(buf, "cannot get uint32 value from:0x%x",
-            neo_value_get_type_name(value));
-    neo_context_throw(
-        ctx, create_neo_exception(ctx, buf, NULL, __FILE__, __LINE__, 1));
-  }
+  CHECK_TYPE(NEO_VM_TYPE_UINT32);
   uint32_t *data = (uint32_t *)neo_value_get_data(value);
   return *data;
 }

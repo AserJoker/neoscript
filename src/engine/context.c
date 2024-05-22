@@ -198,9 +198,9 @@ neo_value neo_context_create_value(neo_context self, neo_type type,
   neo_value value = create_neo_value(self->scope, atom);
   return value;
 }
-neo_value neo_context_call(neo_context self, neo_closure closure,
-                           neo_value *args, int argc, const char *filename,
-                           int line, int column) {
+neo_value neo_context_call(neo_context self, neo_closure closure, int argc,
+                           neo_value *args, const char *filename, int line,
+                           int column) {
   self->result = NULL;
   neo_scope current = neo_context_get_scope(self);
 

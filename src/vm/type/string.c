@@ -40,13 +40,7 @@ neo_value create_neo_string(neo_context ctx, const char *value) {
   return neo_context_create_value(ctx, neo_string, &str);
 }
 const char *neo_value_to_string(neo_context ctx, neo_value value) {
-  if (neo_value_get_type_name(value) != NEO_VM_TYPE_STRING) {
-    char buf[1024] = {0};
-    sprintf(buf, "cannot get string value from:0x%x",
-            neo_value_get_type_name(value));
-    neo_context_throw(
-        ctx, create_neo_exception(ctx, buf, NULL, __FILE__, __LINE__, 1));
-  }
+  CHECK_TYPE(NEO_VM_TYPE_STRING);
   neo_string str = neo_value_get_data(value);
   return str->str;
 }

@@ -12,4 +12,7 @@ neo_value create_neo_exception(neo_context ctx, const char *message,
 const char *neo_exception_get_message(neo_value self);
 neo_value neo_exception_get_caused(neo_value self, neo_context ctx);
 neo_list neo_exception_get_stack(neo_value self);
+#define neo_context_throw_exception(ctx, message)                              \
+  neo_context_throw(                                                           \
+      ctx, create_neo_exception(ctx, message, NULL, __FILE__, __LINE__, 1))
 #endif
