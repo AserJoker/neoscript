@@ -59,6 +59,36 @@ size_t neo_array_get_length(neo_context ctx, neo_value value) {
   neo_array_impl impl = (neo_array_impl)neo_value_get_data(value);
   return impl->length;
 }
-neo_value neo_array_get_index(neo_context ctx, neo_value value, int32_t index);
+neo_value neo_array_get_index(neo_context ctx, neo_value value, int32_t index) {
+  CHECK_TYPE(NEO_VM_TYPE_ARRAY);
+  neo_array_impl impl = (neo_array_impl)neo_value_get_data(value);
+  if (index >= impl->length) {
+    return neo_context_get_null(ctx);
+  }
+  return create_neo_value(neo_context_get_scope(ctx), impl->buffer[index]);
+}
 void neo_array_set_index(neo_context ctx, neo_value value, int32_t index,
-                         neo_value item);
+                         neo_value item) {
+  CHECK_TYPE(NEO_VM_TYPE_ARRAY);
+  neo_array_impl impl = (neo_array_impl)neo_value_get_data(value);
+  neo_atom atom = neo_value_get_atom(value);
+  neo_atom item_atom = neo_value_get_atom(item);
+  if (index < impl->length) {
+    if (item_atom != impl->buffer[index]) {
+      neo_atom_add_ref(item_atom, atom);
+      neo_atom_remove_ref(impl->buffer[index], atom);
+      impl->buffer[index] = atom;
+    }
+  } else {
+    neo_atom *buffer = (neo_atom *)malloc(sizeof(neo_atom) * (index + 1));
+    memset(buffer, 0, sizeof(neo_atom) * (index + 1));
+    for (int i = 0; i < impl->length; i++) {
+      buffer[i] = impl->buffer[i];
+    }
+    neo_atom_add_ref(item_atom, atom);
+    buffer[index] = item_atom;
+    free(impl->buffer);
+    impl->buffer = buffer;
+    impl->length = index + 1;
+  }
+}

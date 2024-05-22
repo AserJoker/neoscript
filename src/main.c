@@ -5,6 +5,7 @@
 #include "engine/value.h"
 #include "util/strings.h"
 #include "vm/type.h"
+#include "vm/type/array.h"
 #include "vm/type/boolean.h"
 #include "vm/type/function.h"
 #include "vm/type/int16.h"
@@ -129,6 +130,7 @@ int main(int argc, char *argv[]) {
 
   neo_init_function(rt);
   neo_init_object(rt);
+  neo_init_array(rt);
 
   neo_vm vm = create_neo_vm(rt);
   neo_context ctx = neo_vm_get_context(vm);
