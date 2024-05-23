@@ -43,7 +43,7 @@ neo_value neo_vm_eval(neo_vm self, uint16_t *bytecodes) {
       return NULL;
     }
   }
-  return neo_context_get_result(self->context);
+  return neo_context_get_null(self->context);
 }
 
 void neo_vm_set_operators(neo_vm self, neo_vm_opterator *operators) {

@@ -1,13 +1,14 @@
 #include "engine/context.h"
 #include "engine/runtime.h"
+#include "engine/scope.h"
 #include "engine/type.h"
+#include "engine/type/closure.h"
 #include "engine/type/exception.h"
 #include "engine/value.h"
 #include "util/strings.h"
 #include "vm/type.h"
 #include "vm/type/array.h"
 #include "vm/type/boolean.h"
-#include "vm/type/function.h"
 #include "vm/type/int16.h"
 #include "vm/type/int32.h"
 #include "vm/type/int64.h"
@@ -81,6 +82,7 @@ char *toJSON(neo_context ctx, neo_value value) {
             sprintf(buf, "%s,\"%s\":%s", oldbuf, key, field_json);
           } else {
             sprintf(buf, "%s\"%s\":%s", oldbuf, key, field_json);
+            flag = FALSE;
           }
           free(oldbuf);
         }
@@ -99,16 +101,22 @@ char *toJSON(neo_context ctx, neo_value value) {
   return NULL;
 }
 
+neo_value co_func(neo_context ctx, size_t argc, neo_value *argv) {
+  while (1) {
+    printf("co_func\n");
+    neo_context_co_yield(ctx);
+  }
+  return neo_context_get_null(ctx);
+}
+
 neo_value neo_main(neo_context ctx, size_t argc, neo_value *argv) {
   printf("neo_main start\n");
-  neo_value obj = create_neo_object(ctx);
-  neo_value str = create_neo_string(ctx, "hello world");
-  neo_object_set_field(ctx, obj, "str", str);
-  neo_object_set_field(ctx, obj, "str", create_neo_string(ctx, "abc"));
-  neo_object_delete_attribute(ctx, obj, "str");
-  char *json = toJSON(ctx, obj);
-  printf("%s\n", json);
-  free(json);
+  neo_value co_fn = create_neo_closure(ctx, co_func, "co_func");
+  neo_context_co_call(ctx, co_fn, 0, NULL, __FILE__, __LINE__, 1);
+  while (!neo_context_co_ready(ctx)) {
+    printf("neo_main\n");
+    neo_context_co_yield(ctx);
+  }
   return neo_context_get_null(ctx);
 }
 
@@ -128,15 +136,13 @@ int main(int argc, char *argv[]) {
   neo_init_boolean(rt);
   neo_init_string(rt);
 
-  neo_init_function(rt);
   neo_init_object(rt);
   neo_init_array(rt);
 
   neo_vm vm = create_neo_vm(rt);
   neo_context ctx = neo_vm_get_context(vm);
-  neo_value neo_main_fn = neo_context_create_function(ctx, neo_main);
-  neo_context_call(ctx, neo_value_to_closure(ctx, neo_main_fn), 0, NULL,
-                   __FILE__, __LINE__, 1);
+  neo_value neo_main_fn = create_neo_closure(ctx, neo_main, "neo_main");
+  neo_context_call(ctx, neo_main_fn, 0, NULL, __FILE__, __LINE__, 1);
   free_neo_vm(vm);
   free_neo_runtime(rt);
   return 0;

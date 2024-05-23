@@ -1,7 +1,9 @@
 #include "engine/runtime.h"
 #include "engine/type.h"
+#include "engine/type/closure.h"
 #include "engine/type/exception.h"
 #include "engine/type/null.h"
+#include "engine/type/promise.h"
 #include "util/imap.h"
 #include "util/list.h"
 #include <assert.h>
@@ -20,6 +22,8 @@ neo_runtime create_neo_runtime() {
 
   neo_null_init(rt);
   neo_init_exception(rt);
+  neo_init_closure(rt);
+  neo_init_promise(rt);
   return rt;
 }
 

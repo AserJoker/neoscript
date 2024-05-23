@@ -1,6 +1,5 @@
 #ifndef __NEO_ENGINE_CONTEXT__
 #define __NEO_ENGINE_CONTEXT__
-#include "engine/closure.h"
 #include "engine/scope.h"
 #include "engine/type.h"
 #include "runtime.h"
@@ -21,11 +20,11 @@ neo_scope neo_context_get_scope(neo_context self);
 
 neo_value neo_context_get_null(neo_context self);
 
-neo_value neo_context_call(neo_context self, neo_closure closure, int argc,
+neo_value neo_context_call(neo_context self, neo_value closure, int argc,
                            neo_value *argv, const char *filename, int line,
                            int column);
 
-neo_closure neo_context_get_closure(neo_context self);
+neo_value neo_context_get_closure(neo_context self);
 
 neo_value neo_context_create_value(neo_context self, neo_type type, void *init);
 
@@ -46,6 +45,13 @@ void neo_context_throw(neo_context self, neo_value exception);
 void neo_context_set_error_callback(neo_context self, neo_error_callback cb,
                                     void *_);
 
-neo_value neo_context_get_result(neo_context self);
+neo_value neo_context_co_call(neo_context self, neo_value closure, int argc,
+                              neo_value *argv, const char *filename, int line,
+                              int column);
+void neo_context_co_yield(neo_context self);
+
+neo_value neo_context_co_wait(neo_context ctx, neo_value promise);
+
+int8_t neo_context_co_ready(neo_context ctx);
 
 #endif
