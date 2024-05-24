@@ -1,4 +1,21 @@
 cmake_minimum_required(VERSION 3.12)
 project(test)
-add_executable(TestCall TestCall.c)
-target_link_libraries(TestCall PRIVATE ${NEO_SCRIPT_NAME})
+
+file(GLOB TEST_ITEMS RELATIVE ${PROJECT_SOURCE_DIR} *)
+
+foreach(ITEM ${TEST_ITEMS})
+    if(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ITEM})
+        aux_source_directory(${PROJECT_SOURCE_DIR}/${ITEM} ITEM_SRC)
+        add_executable(${ITEM} ${ITEM_SRC})
+        target_link_libraries(${ITEM} PRIVATE ${NEO_SCRIPT_NAME})
+        set(ITEM_SRC)
+    endif(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ITEM})
+endforeach(ITEM ${TEST_ITEMS})
+
+enable_testing()
+
+foreach(ITEM ${TEST_ITEMS})
+    if(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ITEM})
+        add_test(NAME ${ITEM} COMMAND ${ITEM})
+    endif(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ITEM})
+endforeach(ITEM ${TEST_ITEMS})

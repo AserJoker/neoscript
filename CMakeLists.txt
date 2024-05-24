@@ -13,5 +13,3 @@ add_library(${PROJECT_NAME} SHARED ${UTIL} ${ENGINE} ${ENGINE_TYPE} ${VM} ${VM_T
 add_executable(${PROJECT_NAME}.${CMAKE_BUILD_TYPE} src/main.c)
 target_link_libraries(${PROJECT_NAME}.${CMAKE_BUILD_TYPE} PRIVATE ${NEO_SCRIPT_NAME})
 add_subdirectory(tests)
-enable_testing()
-add_test(NAME TestCall COMMAND TestCall)
