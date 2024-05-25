@@ -55,7 +55,7 @@ int8_t neo_promise_ready(neo_value value, neo_context ctx, neo_value data) {
     neo_atom atom = neo_value_get_atom(value);
     neo_atom data_atom = neo_value_get_atom(data);
     impl->value = data_atom;
-    neo_atom_add_ref(atom, data_atom);
+    neo_atom_add_ref(data_atom, atom);
     return 1;
   }
   return 0;
@@ -68,7 +68,7 @@ int8_t neo_promise_error(neo_value value, neo_context ctx, neo_value data) {
     neo_atom atom = neo_value_get_atom(value);
     neo_atom data_atom = neo_value_get_atom(data);
     impl->value = data_atom;
-    neo_atom_add_ref(atom, data_atom);
+    neo_atom_add_ref(data_atom, atom);
     return 1;
   }
   return 0;

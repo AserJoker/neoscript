@@ -43,6 +43,11 @@ neo_value neo_context_catch(neo_context self);
 void neo_context_throw(neo_context self, neo_value exception);
 
 void neo_context_set_error_callback(neo_context self, neo_error_callback cb,
-                                    void *_);
+                                    void *arg);
 
+neo_value neo_context_co_start(neo_context ctx, neo_value func, size_t argc,
+                               neo_value *argv);
+void neo_context_co_yield(neo_context ctx);
+neo_value neo_context_co_wait(neo_context ctx, neo_value promise);
+int8_t neo_context_co_empty(neo_context ctx);
 #endif

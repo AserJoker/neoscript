@@ -103,13 +103,21 @@ char *toJSON(neo_context ctx, neo_value value) {
 
 neo_value co_func(neo_context ctx, size_t argc, neo_value *argv) {
   printf("%s\n", "co_func");
-  return neo_context_get_null(ctx);
+  neo_context_co_yield(ctx);
+  neo_context_throw_exception(ctx, "demo error");
+  return create_neo_int32(ctx, 123);
 }
 
 neo_value neo_main(neo_context ctx, size_t argc, neo_value *argv) {
   printf("neo_main start\n");
   neo_value co_fn = create_neo_closure(ctx, co_func, "co_func");
-  neo_context_call(ctx, co_fn, 0, NULL, __FILE__, __LINE__, 0);
+  neo_value promise = neo_context_co_start(ctx, co_fn, 0, NULL);
+  while (!neo_context_co_empty(ctx)) {
+    neo_value result = neo_context_co_wait(ctx, promise);
+    printf("%d\n", neo_value_to_int32(ctx, result));
+    printf("neo_main\n");
+    neo_context_co_yield(ctx);
+  }
   return neo_context_get_null(ctx);
 }
 
