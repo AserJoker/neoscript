@@ -1,3 +1,4 @@
+#pragma GCC optimize(0)
 #include "engine/context.h"
 #include "engine/atom.h"
 #include "engine/runtime.h"
@@ -30,7 +31,6 @@ struct _neo_cpuinfo {
   uint64_t ebp; // 56
   uint64_t eip; // 64
 };
-
 static void neo_co_switch(neo_cpuinfo src, neo_cpuinfo dst) {
   asm volatile("movq %%rax,0(%%rdi)\n\t"
                "movq %%rbx,8(%%rdi)\n\t"
@@ -443,6 +443,7 @@ static void neo_co_schedule(neo_context ctx) {
   ctx->coroutine->disposed = 1;
   neo_context_co_yield(ctx);
 }
+
 neo_value neo_context_co_start(neo_context ctx, neo_value func, size_t argc,
                                neo_value *argv) {
   neo_value promise = create_neo_promise(ctx);
@@ -481,7 +482,6 @@ void neo_context_co_yield(neo_context ctx) {
 int8_t neo_context_co_empty(neo_context ctx) {
   return ctx->coroutine->next == ctx->coroutine;
 }
-
 neo_value neo_context_co_wait(neo_context ctx, neo_value promise) {
   while (neo_promise_get_status(promise, ctx) == PROMISE_PENDDING) {
     neo_context_co_yield(ctx);

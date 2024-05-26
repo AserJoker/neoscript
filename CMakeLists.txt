@@ -9,6 +9,7 @@ aux_source_directory(./src/vm VM)
 aux_source_directory(./src/vm/type VM_TYPE)
 aux_source_directory(./src/vm/instruction VM_INSTRUCTION)
 aux_source_directory(./src/vm/instruction VM_OPERATOR)
+
 add_library(${PROJECT_NAME}-engine SHARED ${UTIL} ${ENGINE} ${ENGINE_TYPE})
 add_library(${PROJECT_NAME}-vm SHARED ${VM} ${VM_TYPE} ${VM_INSTRUCTION} ${VM_OPERATOR})
 add_executable(${PROJECT_NAME}.${CMAKE_BUILD_TYPE} src/main.c)
