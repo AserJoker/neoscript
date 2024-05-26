@@ -152,14 +152,17 @@ char *neo_call_frame_to_string(neo_call_frame frame) {
   strcpy(buf, funcname);
   strcat(buf, "(");
   strcat(buf, filename);
-  strcat(buf, ":");
-  char *line = strings_from_int(frame->line);
-  strcat(buf, line);
-  free(line);
-  strcat(buf, ":");
-  char *column = strings_from_int(frame->column);
-  strcat(buf, column);
-  free(column);
+  if (frame->filename) {
+    strcat(buf, ":");
+    char *line = strings_from_int(frame->line);
+    strcat(buf, line);
+    free(line);
+    strcat(buf, ":");
+    char *column = strings_from_int(frame->column);
+    strcat(buf, column);
+    free(column);
+  }
+  strcat(buf, ")");
   return buf;
 }
 
@@ -422,6 +425,9 @@ static void neo_co_schedule(neo_context ctx) {
   jmp_buf *context = neo_context_try_start(ctx);
   neo_value promise = create_neo_value(routine->scope, routine->promise);
   neo_context_push_scope(ctx);
+  neo_context_push_call_frame(ctx, "<coroutine>", NULL, 0, 0);
+  neo_context_push_call_frame(ctx, neo_closure_get_name(ctx, routine->func),
+                              NULL, 0, 0);
   if (!setjmp(*context)) {
     neo_function func = neo_closure_get_function(ctx, routine->func);
     neo_value value = func(ctx, routine->argc, routine->argv);
@@ -431,6 +437,8 @@ static void neo_co_schedule(neo_context ctx) {
     neo_value error = neo_context_catch(ctx);
     neo_promise_error(promise, ctx, error);
   }
+  neo_context_pop_call_frame(ctx);
+  neo_context_pop_call_frame(ctx);
   neo_context_pop_scope(ctx);
   ctx->coroutine->disposed = 1;
   neo_context_co_yield(ctx);
