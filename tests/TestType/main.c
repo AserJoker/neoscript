@@ -1,8 +1,8 @@
-#include "engine/context.h"
-#include "engine/runtime.h"
-#include "engine/scope.h"
-#include "engine/type.h"
-#include "util/strings.h"
+#include "context.h"
+#include "runtime.h"
+#include "scope.h"
+#include "type.h"
+#include "strings.h"
 #include <assert.h>
 #include <stdlib.h>
 #define TEST_DEMO_TYPE 999
