@@ -1,6 +1,7 @@
+#include "coroutine.h"
 #pragma GCC optimize(0)
-#include "context.h"
 #include "atom.h"
+#include "context.h"
 #include "list.h"
 #include "runtime.h"
 #include "scope.h"
@@ -18,47 +19,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-typedef struct _neo_cpuinfo *neo_cpuinfo;
-struct _neo_cpuinfo {
-  uint64_t rax; // 0
-  uint64_t rbx; // 8
-  uint64_t rcx; // 16
-  uint64_t rdx; // 24
-  uint64_t rdi; // 32
-  uint64_t rsi; // 40
-
-  uint64_t rsp; // 48
-  uint64_t rbp; // 56
-  uint64_t rip; // 64
-};
-static void neo_co_switch(neo_cpuinfo src, neo_cpuinfo dst) {
-  asm volatile("movq %%rax,0(%%rdi)\n\t"
-               "movq %%rbx,8(%%rdi)\n\t"
-               "movq %%rcx,16(%%rdi)\n\t"
-               "movq %%rdx,24(%%rdi)\n\t"
-               "movq %%rdi,32(%%rdi)\n\t"
-               "movq %%rsi,40(%%rdi)\n\t"
-               "movq %%rbp,%%rbx\n\t"
-               "add $16,%%rbx\n\t"
-               "movq %%rbx,48(%%rdi)\n\t"
-               "movq 0(%%rbp),%%rbx\n\t"
-               "movq %%rbx,56(%%rdi)\n\t"
-               "movq 8(%%rbp),%%rbx\n\t"
-               "movq %%rbx,64(%%rdi)\n\t"
-
-               "movq 0(%%rsi),%%rax\n\t"
-               "movq 16(%%rsi),%%rcx\n\t"
-               "movq 24(%%rsi),%%rdx\n\t"
-               "movq 48(%%rsi),%%rsp\n\t"
-               "movq 56(%%rsi),%%rbp\n\t"
-               "movq 64(%%rsi),%%rbx\n\t"
-               "pushq %%rbx\n\t"
-               "movq 8(%%rsi),%%rbx\n\t"
-               "movq 32(%%rsi),%%rdi\n\t"
-               "movq 40(%%rsi),%%rsi\n\t"
-               "ret\n\t" ::);
-}
-
 void neo_context_default_error_callback(neo_context ctx, neo_value error,
                                         void *_) {
   const char *message = neo_exception_get_message(error);
@@ -166,10 +126,9 @@ char *neo_call_frame_to_string(neo_call_frame frame) {
   return buf;
 }
 
-typedef struct _neo_coroutine *neo_coroutine;
-struct _neo_coroutine {
-  struct _neo_cpuinfo cpuinfo;
-  void *pstack;
+typedef struct _neo_co_context *neo_co_context;
+struct _neo_co_context {
+  neo_coroutine coroutine;
   int8_t disposed;
   neo_value func;
   size_t argc;
@@ -181,36 +140,36 @@ struct _neo_coroutine {
   neo_list trystacks;
   neo_atom promise;
 
-  neo_coroutine next;
-  neo_coroutine last;
+  neo_co_context next;
+  neo_co_context last;
 };
 
-neo_coroutine create_neo_coroutine() {
-  neo_coroutine coroutine =
-      (neo_coroutine)malloc(sizeof(struct _neo_coroutine));
-  coroutine->scope = create_neo_scope(NULL);
-  coroutine->closure = NULL;
-  coroutine->callstacks = create_neo_call_frame(NULL);
-  coroutine->trystacks = create_neo_list((neo_free_fn)free_neo_try_block);
-  coroutine->disposed = 0;
-  coroutine->argc = 0;
-  coroutine->argv = NULL;
-  coroutine->next = NULL;
-  coroutine->last = NULL;
-  coroutine->pstack = NULL;
-  return coroutine;
+neo_co_context create_neo_co_context() {
+  neo_co_context co_context =
+      (neo_co_context)malloc(sizeof(struct _neo_co_context));
+  co_context->coroutine = NULL;
+  co_context->scope = create_neo_scope(NULL);
+  co_context->closure = NULL;
+  co_context->callstacks = create_neo_call_frame(NULL);
+  co_context->trystacks = create_neo_list((neo_free_fn)free_neo_try_block);
+  co_context->disposed = 0;
+  co_context->argc = 0;
+  co_context->argv = NULL;
+  co_context->next = NULL;
+  co_context->last = NULL;
+  return co_context;
 }
-void free_neo_coroutine(neo_coroutine routine) {
-  neo_coroutine last = routine->last;
-  neo_coroutine next = routine->next;
+static void free_neo_co_context(neo_co_context routine) {
+  neo_co_context last = routine->last;
+  neo_co_context next = routine->next;
   if (last) {
     last->next = next;
   }
   if (next) {
     next->last = last;
   }
-  if (routine->pstack) {
-    free(routine->pstack);
+  if (routine->coroutine) {
+    free(routine->coroutine);
   }
   free_neo_list(routine->trystacks);
   free_neo_call_frame(routine->callstacks);
@@ -225,7 +184,7 @@ void free_neo_coroutine(neo_coroutine routine) {
 struct _neo_context {
   neo_runtime rt;
 
-  neo_coroutine coroutine;
+  neo_co_context co_context;
 
   neo_error_callback error_cb;
   void *error_cb_arg;
@@ -238,36 +197,37 @@ neo_context create_neo_context(neo_runtime rt) {
   ctx->error_cb = neo_context_default_error_callback;
   ctx->error_cb_arg = NULL;
   ctx->rt = rt;
-  ctx->coroutine = create_neo_coroutine();
-  ctx->coroutine->next = ctx->coroutine;
-  ctx->coroutine->last = ctx->coroutine;
+  ctx->co_context = create_neo_co_context();
+  ctx->co_context->next = ctx->co_context;
+  ctx->co_context->last = ctx->co_context;
   ctx->null = create_neo_null(ctx);
+  ctx->co_context->coroutine = neo_co_start(NULL, NULL);
   return ctx;
 }
 void free_neo_context(neo_context ctx) {
   if (!ctx) {
     return;
   }
-  while (ctx->coroutine->next != ctx->coroutine) {
-    free_neo_coroutine(ctx->coroutine->next);
+  while (ctx->co_context->next != ctx->co_context) {
+    free_neo_co_context(ctx->co_context->next);
   }
-  free_neo_coroutine(ctx->coroutine);
+  free_neo_co_context(ctx->co_context);
   free(ctx);
 }
 void neo_context_push_call_frame(neo_context self, const char *funcname,
                                  const char *filename, int line, int column) {
   neo_call_frame frame = create_neo_call_frame(funcname);
-  if (self->coroutine->callstacks) {
-    self->coroutine->callstacks->column = column;
-    self->coroutine->callstacks->line = line;
-    self->coroutine->callstacks->filename = strings_clone(filename);
+  if (self->co_context->callstacks) {
+    self->co_context->callstacks->column = column;
+    self->co_context->callstacks->line = line;
+    self->co_context->callstacks->filename = strings_clone(filename);
   }
-  frame->parent = self->coroutine->callstacks;
-  self->coroutine->callstacks = frame;
+  frame->parent = self->co_context->callstacks;
+  self->co_context->callstacks = frame;
 }
 void neo_context_pop_call_frame(neo_context self) {
-  neo_call_frame frame = self->coroutine->callstacks;
-  self->coroutine->callstacks = frame->parent;
+  neo_call_frame frame = self->co_context->callstacks;
+  self->co_context->callstacks = frame->parent;
   if (frame->filename) {
     free(frame->filename);
   }
@@ -275,34 +235,34 @@ void neo_context_pop_call_frame(neo_context self) {
     free(frame->funcname);
   }
   free(frame);
-  if (self->coroutine->callstacks) {
-    if (self->coroutine->callstacks->filename) {
-      free(self->coroutine->callstacks->filename);
-      self->coroutine->callstacks->filename = NULL;
+  if (self->co_context->callstacks) {
+    if (self->co_context->callstacks->filename) {
+      free(self->co_context->callstacks->filename);
+      self->co_context->callstacks->filename = NULL;
     }
-    self->coroutine->callstacks->line = 0;
-    self->coroutine->callstacks->column = 0;
+    self->co_context->callstacks->line = 0;
+    self->co_context->callstacks->column = 0;
   }
 }
 neo_runtime neo_context_get_runtime(neo_context self) { return self->rt; }
 
 void neo_context_push_scope(neo_context self) {
-  neo_scope scope = create_neo_scope(self->coroutine->scope);
-  self->coroutine->scope = scope;
+  neo_scope scope = create_neo_scope(self->co_context->scope);
+  self->co_context->scope = scope;
 }
 void neo_context_pop_scope(neo_context self) {
-  neo_scope parent = neo_scope_get_parent(self->coroutine->scope);
-  free_neo_scope(self->coroutine->scope);
-  self->coroutine->scope = parent;
+  neo_scope parent = neo_scope_get_parent(self->co_context->scope);
+  free_neo_scope(self->co_context->scope);
+  self->co_context->scope = parent;
 }
 
 neo_scope neo_context_get_scope(neo_context self) {
-  return self->coroutine->scope;
+  return self->co_context->scope;
 }
 neo_value neo_context_create_value(neo_context self, neo_type type,
                                    void *init) {
   neo_atom atom = create_neo_atom(type, init);
-  neo_value value = create_neo_value(self->coroutine->scope, atom);
+  neo_value value = create_neo_value(self->co_context->scope, atom);
   return value;
 }
 neo_value neo_context_call(neo_context self, neo_value closure, int argc,
@@ -316,8 +276,8 @@ neo_value neo_context_call(neo_context self, neo_value closure, int argc,
   neo_context_push_call_frame(self, neo_closure_get_name(self, closure),
                               filename, line, column);
 
-  neo_value last = self->coroutine->closure;
-  self->coroutine->closure = closure;
+  neo_value last = self->co_context->closure;
+  self->co_context->closure = closure;
 
   neo_context_push_scope(self);
 
@@ -339,7 +299,7 @@ neo_value neo_context_call(neo_context self, neo_value closure, int argc,
 
   neo_context_pop_scope(self);
 
-  self->coroutine->closure = closure;
+  self->co_context->closure = closure;
 
   neo_context_pop_call_frame(self);
   if (is_error) {
@@ -363,7 +323,7 @@ neo_value neo_context_operator(neo_context self, uint32_t opt, int argc,
 neo_list neo_context_trace(neo_context self, const char *filename, int line,
                            int column) {
   neo_list trace = create_neo_list(free);
-  neo_call_frame frame = self->coroutine->callstacks;
+  neo_call_frame frame = self->co_context->callstacks;
   struct _neo_call_frame tmp;
   tmp.funcname = frame->funcname;
   tmp.filename = (char *)filename;
@@ -381,24 +341,23 @@ neo_list neo_context_trace(neo_context self, const char *filename, int line,
 }
 
 neo_value neo_context_get_closure(neo_context self) {
-  return self->coroutine->closure;
+  return self->co_context->closure;
 }
 
 jmp_buf *neo_context_try_start(neo_context self) {
-  neo_try_block block = create_neo_try_block(self->coroutine->scope);
-  neo_list_push(self->coroutine->trystacks, block);
+  neo_try_block block = create_neo_try_block(self->co_context->scope);
+  neo_list_push(self->co_context->trystacks, block);
   return &block->context;
 }
 
 void neo_context_try_end(neo_context self) {
-  neo_try_block block = neo_list_pop(self->coroutine->trystacks);
+  neo_try_block block = neo_list_pop(self->co_context->trystacks);
   if (block) {
     free_neo_try_block(block);
   }
 }
-
 neo_value neo_context_catch(neo_context self) {
-  neo_try_block block = neo_list_pop(self->coroutine->trystacks);
+  neo_try_block block = neo_list_pop(self->co_context->trystacks);
   neo_value error = block->error;
   free(block);
   return error;
@@ -406,7 +365,7 @@ neo_value neo_context_catch(neo_context self) {
 
 void neo_context_throw(neo_context self, neo_value exception) {
   neo_try_block block = (neo_try_block)neo_list_node_get(
-      neo_list_node_last(neo_list_tail(self->coroutine->trystacks)));
+      neo_list_node_last(neo_list_tail(self->co_context->trystacks)));
   if (block) {
     block->error = neo_scope_clone_value(block->scope, exception);
     longjmp(block->context, 1);
@@ -421,7 +380,7 @@ void neo_context_set_error_callback(neo_context self, neo_error_callback cb,
   self->error_cb_arg = arg;
 }
 static void neo_co_schedule(neo_context ctx) {
-  neo_coroutine routine = ctx->coroutine;
+  neo_co_context routine = ctx->co_context;
   jmp_buf *context = neo_context_try_start(ctx);
   neo_value promise = create_neo_value(routine->scope, routine->promise);
   neo_context_push_scope(ctx);
@@ -440,47 +399,43 @@ static void neo_co_schedule(neo_context ctx) {
   neo_context_pop_call_frame(ctx);
   neo_context_pop_call_frame(ctx);
   neo_context_pop_scope(ctx);
-  ctx->coroutine->disposed = 1;
+  ctx->co_context->disposed = 1;
   neo_context_co_yield(ctx);
 }
 
 neo_value neo_context_co_start(neo_context ctx, neo_value func, size_t argc,
                                neo_value *argv) {
   neo_value promise = create_neo_promise(ctx);
-  neo_coroutine coroutine = create_neo_coroutine();
-  coroutine->pstack = malloc(4096);
+  neo_co_context coroutine = create_neo_co_context();
   coroutine->argc = argc;
   coroutine->argv = argv;
-  coroutine->cpuinfo.rsp = (ptrdiff_t)(coroutine->pstack) + 4096;
-  coroutine->cpuinfo.rbp = coroutine->cpuinfo.rsp;
-  coroutine->cpuinfo.rip = (ptrdiff_t)neo_co_schedule;
-  coroutine->cpuinfo.rdi = (ptrdiff_t)ctx;
+  coroutine->coroutine = neo_co_start((void (*)(void *))neo_co_schedule, ctx);
   coroutine->func = neo_scope_clone_value(coroutine->scope, func);
   for (int i = 0; i < argc; i++) {
     coroutine->argv[i] =
         neo_scope_clone_value(coroutine->scope, coroutine->argv[i]);
   }
   coroutine->promise = neo_value_get_atom(promise);
-  coroutine->next = ctx->coroutine;
-  coroutine->last = ctx->coroutine->last;
-  ctx->coroutine->last->next = coroutine;
-  ctx->coroutine->last = coroutine;
+  coroutine->next = ctx->co_context;
+  coroutine->last = ctx->co_context->last;
+  ctx->co_context->last->next = coroutine;
+  ctx->co_context->last = coroutine;
   return promise;
 }
 void neo_context_co_yield(neo_context ctx) {
-  neo_coroutine current = ctx->coroutine;
-  ctx->coroutine = ctx->coroutine->next;
-  while (ctx->coroutine->disposed) {
-    neo_coroutine next = ctx->coroutine->next;
-    free_neo_coroutine(ctx->coroutine);
-    ctx->coroutine = next;
+  neo_co_context current = ctx->co_context;
+  ctx->co_context = ctx->co_context->next;
+  while (ctx->co_context->disposed) {
+    neo_co_context next = ctx->co_context->next;
+    free_neo_co_context(ctx->co_context);
+    ctx->co_context = next;
   }
   if (current->next != current) {
-    neo_co_switch(&current->cpuinfo, &ctx->coroutine->cpuinfo);
+    neo_co_yield(current->coroutine, ctx->co_context->coroutine);
   }
 }
 int8_t neo_context_co_empty(neo_context ctx) {
-  return ctx->coroutine->next == ctx->coroutine;
+  return ctx->co_context->next == ctx->co_context;
 }
 neo_value neo_context_co_wait(neo_context ctx, neo_value promise) {
   while (neo_promise_get_status(promise, ctx) == PROMISE_PENDDING) {

@@ -1,5 +1,5 @@
-#ifndef __NEO_UTIL_IMAP__
-#define __NEO_UTIL_IMAP__
+#ifndef __NEO_COMMON_IMAP__
+#define __NEO_COMMON_IMAP__
 #include "./list.h"
 #include <stdint.h>
 typedef struct _neo_imap *neo_imap;

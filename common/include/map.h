@@ -1,5 +1,5 @@
-#ifndef __NEO_UTIL_MAP__
-#define __NEO_UTIL_MAP__
+#ifndef __NEO_COMMON_MAP__
+#define __NEO_COMMON_MAP__
 #include "./list.h"
 #include <stdint.h>
 typedef struct _neo_map *neo_map;

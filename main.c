@@ -104,7 +104,7 @@ char *toJSON(neo_context ctx, neo_value value) {
 
 neo_value co_func(neo_context ctx, size_t argc, neo_value *argv) {
   printf("%s\n", "co_func");
-  // neo_context_co_yield(ctx);
+  neo_context_co_yield(ctx);
   // neo_context_throw_exception(ctx, "demo error");
   return create_neo_int32(ctx, 123);
 }
@@ -112,22 +112,13 @@ neo_value co_func(neo_context ctx, size_t argc, neo_value *argv) {
 neo_value neo_main(neo_context ctx, size_t argc, neo_value *argv) {
   printf("neo_main start\n");
   neo_value co_fn = create_neo_closure(ctx, co_func, "co_func");
-  jmp_buf *buf = neo_context_try_start(ctx);
-  if (!setjmp(*buf)) {
-    neo_value result =
-        neo_context_call(ctx, co_fn, 0, NULL, __FILE__, __LINE__, 0);
-    // neo_value promise = neo_context_co_start(ctx, co_fn, 0, NULL);
-    // while (!neo_context_co_empty(ctx)) {
-    // printf("neo_main\n");
-    // neo_context_co_yield(ctx);
-    // }
-    // neo_value result = neo_context_co_wait(ctx, promise);
-    printf("%d\n", neo_value_to_int32(ctx, result));
-    neo_context_try_end(ctx);
-  } else {
-    neo_value err = neo_context_catch(ctx);
-    printf("%s\n", neo_exception_get_message(err));
+  neo_value promise = neo_context_co_start(ctx, co_fn, 0, NULL);
+  while (!neo_context_co_empty(ctx)) {
+    printf("neo_main\n");
+    neo_context_co_yield(ctx);
   }
+  neo_value result = neo_context_co_wait(ctx, promise);
+  printf("%d\n", neo_value_to_int32(ctx, result));
   return neo_context_get_null(ctx);
 }
 

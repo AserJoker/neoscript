@@ -1,5 +1,5 @@
-#ifndef __NEO_UTIL_LIST__
-#define __NEO_UTIL_LIST__
+#ifndef __NEO_COMMON_LIST__
+#define __NEO_COMMON_LIST__
 #include <stddef.h>
 typedef struct _neo_list *neo_list;
 typedef struct _neo_list_node *neo_list_node;
@@ -22,7 +22,7 @@ void *neo_list_shift(neo_list self);
 
 neo_list_node neo_list_insert(neo_list self, neo_list_node position,
                               void *data);
-neo_list_node neo_list_find(neo_list self,void *data);
+neo_list_node neo_list_find(neo_list self, void *data);
 
 void neo_list_remove(neo_list self, neo_list_node position);
 
