@@ -3,6 +3,7 @@
 
 #include "type.h"
 #include <stddef.h>
+#include <stdio.h>
 
 #define NEO_TYPE_NULL 0
 #define NEO_TYPE_EXCEPTION -1
@@ -29,8 +30,6 @@ neo_operator_fn neo_runtime_get_operator(neo_runtime self, uint32_t opt);
     neo_value create_neo_exception(neo_context ctx, const char *message,       \
                                    neo_value caused, const char *filename,     \
                                    int line, int column);                      \
-    int sprintf(char *__restrict __s, const char *__restrict __format, ...)    \
-        __THROWNL;                                                             \
     if (neo_value_get_type_name(value) != TYPE) {                              \
       char buf[1024] = {0};                                                    \
       sprintf(buf, "cannot get %s value from:0x%x", #TYPE,                     \

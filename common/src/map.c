@@ -111,6 +111,5 @@ void neo_map_delete(neo_map self, void *key) {
     }
     node = neo_list_node_next(node);
   }
-  volatile int a;
 }
 size_t neo_map_length(neo_map self) { return neo_list_length(self->pairs); }

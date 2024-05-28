@@ -1,5 +1,4 @@
 #include "coroutine.h"
-#pragma GCC optimize(0)
 #include "atom.h"
 #include "context.h"
 #include "list.h"
@@ -169,7 +168,7 @@ static void free_neo_co_context(neo_co_context routine) {
     next->last = last;
   }
   if (routine->coroutine) {
-    free(routine->coroutine);
+    neo_co_destroy(routine->coroutine);
   }
   free_neo_list(routine->trystacks);
   free_neo_call_frame(routine->callstacks);

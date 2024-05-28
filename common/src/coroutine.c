@@ -30,4 +30,7 @@ void neo_co_yield(neo_coroutine current, neo_coroutine coroutine) {
   //   neo_co_switch(&current->cpuinfo, &coroutine->cpuinfo);
   swapcontext(&current->cpuinfo, &coroutine->cpuinfo);
 }
+void neo_co_destroy(neo_coroutine coroutine) {
+  free(coroutine);
+}
 #endif
