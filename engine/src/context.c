@@ -1,6 +1,6 @@
-#include "coroutine.h"
-#include "atom.h"
 #include "context.h"
+#include "atom.h"
+#include "coroutine.h"
 #include "list.h"
 #include "runtime.h"
 #include "scope.h"
@@ -108,20 +108,12 @@ char *neo_call_frame_to_string(neo_call_frame frame) {
     funcname = "[no name]";
   }
   char *buf = (char *)malloc(strlen(filename) + strlen(funcname) + 128);
-  strcpy(buf, funcname);
-  strcat(buf, "(");
-  strcat(buf, filename);
   if (frame->filename) {
-    strcat(buf, ":");
-    char *line = strings_from_int(frame->line);
-    strcat(buf, line);
-    free(line);
-    strcat(buf, ":");
-    char *column = strings_from_int(frame->column);
-    strcat(buf, column);
-    free(column);
+    sprintf(buf, "%s(%s:%d:%d)", funcname, filename, frame->line,
+            frame->column);
+  } else {
+    sprintf(buf, "%s(%s)", funcname, filename);
   }
-  strcat(buf, ")");
   return buf;
 }
 

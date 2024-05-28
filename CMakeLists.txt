@@ -10,4 +10,6 @@ add_subdirectory(./common)
 
 add_executable(${NEO_PROJECT_NAME} ./main.c)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${NEO_PROJECT_NAME}-engine ${NEO_PROJECT_NAME}-vm ${NEO_PROJECT_NAME}-common)
-add_subdirectory(tests)
+
+enable_testing()
+add_subdirectory(./tests)

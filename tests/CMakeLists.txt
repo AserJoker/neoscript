@@ -12,8 +12,6 @@ foreach(ITEM ${TEST_ITEMS})
     endif(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ITEM})
 endforeach(ITEM ${TEST_ITEMS})
 
-enable_testing()
-
 foreach(ITEM ${TEST_ITEMS})
     if(IS_DIRECTORY ${PROJECT_SOURCE_DIR}/${ITEM})
         add_test(NAME ${ITEM} COMMAND ${ITEM})
