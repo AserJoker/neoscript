@@ -102,11 +102,9 @@ char *toJSON(neo_context ctx, neo_value value) {
 }
 
 neo_value co_func(neo_context ctx, size_t argc, neo_value *argv) {
-  while (1) {
     printf("%s\n", "co_func");
     neo_context_co_yield(ctx);
-  }
-  // neo_context_throw_exception(ctx, "demo error");
+  neo_context_throw_exception(ctx, "demo error");
   return create_neo_int32(ctx, 123);
 }
 
