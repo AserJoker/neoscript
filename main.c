@@ -20,7 +20,6 @@
 #include "typedef.h"
 #include "value.h"
 #include "vm.h"
-#include <setjmp.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,8 +102,10 @@ char *toJSON(neo_context ctx, neo_value value) {
 }
 
 neo_value co_func(neo_context ctx, size_t argc, neo_value *argv) {
-  printf("%s\n", "co_func");
-  neo_context_co_yield(ctx);
+  while (1) {
+    printf("%s\n", "co_func");
+    neo_context_co_yield(ctx);
+  }
   // neo_context_throw_exception(ctx, "demo error");
   return create_neo_int32(ctx, 123);
 }
