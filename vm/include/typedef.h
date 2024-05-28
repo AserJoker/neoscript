@@ -17,5 +17,5 @@
 #define NEO_VM_TYPE_STRING 13
 #define NEO_VM_TYPE_OBJECT 14
 #define NEO_VM_TYPE_ARRAY 15
-
+#define NEO_VM_TYPE_CUSTOM 16
 #endif

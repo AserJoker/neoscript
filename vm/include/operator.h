@@ -1,3 +1,0 @@
-#ifndef __NEO_VM_OPERATOR_OPERATOR__
-#define __NEO_VM_OPERATOR_OPERATOR__
-#endif

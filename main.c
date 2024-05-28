@@ -6,6 +6,7 @@
 #include "type/array.h"
 #include "type/boolean.h"
 #include "type/closure.h"
+#include "type/custom.h"
 #include "type/exception.h"
 #include "type/int16.h"
 #include "type/int32.h"
@@ -19,7 +20,6 @@
 #include "type/uint8.h"
 #include "typedef.h"
 #include "value.h"
-#include "vm.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,7 +82,7 @@ char *toJSON(neo_context ctx, neo_value value) {
             sprintf(buf, "%s,\"%s\":%s", oldbuf, key, field_json);
           } else {
             sprintf(buf, "%s\"%s\":%s", oldbuf, key, field_json);
-            flag = FALSE;
+            flag = NEO_FALSE;
           }
           free(oldbuf);
         }
@@ -102,8 +102,8 @@ char *toJSON(neo_context ctx, neo_value value) {
 }
 
 neo_value co_func(neo_context ctx, size_t argc, neo_value *argv) {
-    printf("%s\n", "co_func");
-    neo_context_co_yield(ctx);
+  printf("%s\n", "co_func");
+  neo_context_co_yield(ctx);
   neo_context_throw_exception(ctx, "demo error");
   return create_neo_int32(ctx, 123);
 }
@@ -122,6 +122,15 @@ neo_value neo_main(neo_context ctx, size_t argc, neo_value *argv) {
 }
 
 int main(int argc, char *argv[]) {
+  uint8_t *bytecodes = NULL;
+
+  FILE *fp = fopen("./test.bin", "rb");
+  fseek(fp, 0, SEEK_END);
+  size_t size = ftell(fp);
+  bytecodes = malloc(size);
+  fseek(fp, 0, SEEK_SET);
+  fread(bytecodes, size, 1, fp);
+  fclose(fp);
   neo_runtime rt = create_neo_runtime();
 
   neo_init_int8(rt);
@@ -140,11 +149,9 @@ int main(int argc, char *argv[]) {
   neo_init_object(rt);
   neo_init_array(rt);
 
-  neo_vm vm = create_neo_vm(rt);
-  neo_context ctx = neo_vm_get_context(vm);
-  neo_value neo_main_fn = create_neo_closure(ctx, neo_main, "neo_main");
-  neo_context_call(ctx, neo_main_fn, 0, NULL, __FILE__, __LINE__, 1);
-  free_neo_vm(vm);
+  neo_init_custom(rt);
+
   free_neo_runtime(rt);
+  free(bytecodes);
   return 0;
 }

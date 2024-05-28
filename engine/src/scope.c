@@ -1,16 +1,24 @@
 #include "atom.h"
 #include "list.h"
+#include "map.h"
+#include "strings.h"
 #include "type.h"
 
 #include "scope.h"
 #include "value.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 struct _neo_scope {
   neo_list values;
   neo_scope parent;
   neo_atom root;
+  neo_map named;
 };
+
+int8_t neo_string_compare(const char *a, const char *b) {
+  return strcmp(a, b) == 0;
+}
 
 neo_scope create_neo_scope(neo_scope parent) {
   neo_scope scope = (neo_scope)malloc(sizeof(struct _neo_scope));
@@ -18,12 +26,14 @@ neo_scope create_neo_scope(neo_scope parent) {
   scope->parent = parent;
   scope->values = create_neo_list((neo_free_fn)free_neo_value);
   scope->root = create_neo_atom(NULL, NULL);
+  scope->named = create_neo_map((neo_compare_fn)neo_string_compare, free, NULL);
   return scope;
 }
 void free_neo_scope(neo_scope scope) {
   if (!scope) {
     return;
   }
+  free_neo_map(scope->named);
   free_neo_list(scope->values);
   free_neo_atom(scope->root);
   free(scope);
@@ -58,4 +68,10 @@ neo_value neo_scope_clone_value(neo_scope self, neo_value value) {
     return create_neo_value(self, hook.copy(atom, hook.copy_arg));
   }
   return create_neo_value(self, atom);
+}
+void neo_scope_store_value(neo_scope self, const char *name, neo_value value) {
+  neo_map_set(self->named, strings_clone(name), value);
+}
+neo_value neo_scope_load_value(neo_scope self, const char *name) {
+  return neo_map_get(self->named, (void *)name);
 }

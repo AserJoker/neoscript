@@ -14,4 +14,7 @@ void neo_scope_remove_value(neo_scope self, neo_value value);
 neo_atom neo_scope_get_root(neo_scope self);
 
 neo_value neo_scope_clone_value(neo_scope self, neo_value value);
+
+void neo_scope_store_value(neo_scope self, const char *name, neo_value value);
+neo_value neo_scope_load_value(neo_scope self, const char *name);
 #endif

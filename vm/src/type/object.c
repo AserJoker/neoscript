@@ -16,9 +16,9 @@
 neo_attribute create_neo_attribute() {
   neo_attribute attr = (neo_attribute)malloc(sizeof(struct _neo_attrubite));
   memset(attr, 0, sizeof(struct _neo_attrubite));
-  attr->visible = TRUE;
-  attr->readonly = FALSE;
-  attr->configurable = TRUE;
+  attr->visible = NEO_TRUE;
+  attr->readonly = NEO_TRUE;
+  attr->configurable = NEO_TRUE;
   return attr;
 }
 void free_neo_attribute(neo_attribute attr) { free(attr); }
@@ -68,7 +68,7 @@ void neo_object_set_attribute(neo_context ctx, neo_value value,
   if (!attr) {
     attr = create_neo_attribute();
     neo_map_set(obj->attributes, strings_clone(name), attr);
-  } else if (attr->configurable == FALSE) {
+  } else if (attr->configurable == NEO_TRUE) {
     char msg[1024];
     sprintf(msg, "cannot reconfigure attribute %s", name);
     neo_context_throw(
@@ -122,9 +122,9 @@ int8_t neo_object_set_field(neo_context ctx, neo_value value, const char *name,
   if (!attr) {
     struct _neo_attrubite attr_impl = {};
     memset(&attr_impl, 0, sizeof(attr_impl));
-    attr_impl.configurable = TRUE;
-    attr_impl.readonly = FALSE;
-    attr_impl.visible = TRUE;
+    attr_impl.configurable = NEO_TRUE;
+    attr_impl.readonly = NEO_TRUE;
+    attr_impl.visible = NEO_TRUE;
     neo_object_set_attribute(ctx, value, name, &attr_impl);
     attr = neo_object_get_attribute(ctx, value, name);
   }
