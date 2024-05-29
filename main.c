@@ -110,6 +110,9 @@ neo_value co_func(neo_context ctx, size_t argc, neo_value *argv) {
 
 neo_value neo_main(neo_context ctx, size_t argc, neo_value *argv) {
   printf("neo_main start\n");
+  neo_value test = neo_scope_query_value(neo_context_get_scope(ctx), "test");
+  const char *msg = neo_value_to_string(ctx, test);
+  printf("%s\n", msg);
   neo_value co_fn = create_neo_closure(ctx, co_func, "co_func");
   neo_value promise = neo_context_co_start(ctx, co_fn, 0, NULL);
   while (!neo_context_co_empty(ctx)) {
@@ -151,7 +154,9 @@ int main(int argc, char *argv[]) {
 
   neo_init_custom(rt);
   neo_context ctx = create_neo_context(rt);
+  neo_value test = create_neo_string(ctx, "hello world");
   neo_value neo_main_fn = create_neo_closure(ctx, neo_main, "neo_main");
+  neo_closure_add(ctx, neo_main_fn, "test", test);
   neo_context_call(ctx, neo_main_fn, 0, NULL, __FILE__, __LINE__, 0);
   free_neo_context(ctx);
   free_neo_runtime(rt);

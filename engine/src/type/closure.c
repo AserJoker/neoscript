@@ -14,7 +14,6 @@
 typedef struct _neo_closure_impl *neo_closure_impl;
 struct _neo_closure_impl {
   neo_function func;
-  // neo_list values;
   neo_map values;
   char *name;
   void *arg;
@@ -25,8 +24,7 @@ void neo_closure_init(void *target, void *source, void *_) {
   neo_closure_impl src = (neo_closure_impl)source;
 
   dst->func = src->func;
-  dst->values = create_neo_map((neo_compare_fn)strings_compare, free,
-                               (neo_free_fn)free_neo_atom);
+  dst->values = create_neo_map((neo_compare_fn)strings_compare, free, NULL);
   dst->name = strings_clone(src->name);
   dst->arg = NULL;
 }
@@ -71,7 +69,9 @@ void neo_closure_add(neo_context ctx, neo_value value, const char *name,
     return;
   }
   neo_atom root = neo_value_get_atom(value);
-  neo_atom_remove_ref(old, root);
+  if (old) {
+    neo_atom_remove_ref(old, root);
+  }
   neo_atom_add_ref(atom, root);
   neo_map_set(impl->values, strings_clone(name), atom);
 }
