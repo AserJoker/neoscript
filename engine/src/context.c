@@ -135,11 +135,11 @@ struct _neo_co_context {
   neo_co_context last;
 };
 
-neo_co_context create_neo_co_context() {
+neo_co_context create_neo_co_context(neo_scope parent) {
   neo_co_context co_context =
       (neo_co_context)malloc(sizeof(struct _neo_co_context));
   co_context->coroutine = NULL;
-  co_context->scope = create_neo_scope(NULL);
+  co_context->scope = create_neo_scope(parent);
   co_context->closure = NULL;
   co_context->callstacks = create_neo_call_frame(NULL);
   co_context->trystacks = create_neo_list((neo_free_fn)free_neo_try_block);
@@ -164,7 +164,7 @@ static void free_neo_co_context(neo_co_context routine) {
   }
   free_neo_list(routine->trystacks);
   free_neo_call_frame(routine->callstacks);
-  while (routine->scope) {
+  while (neo_scope_get_parent(routine->scope) != NULL) {
     neo_scope parent = neo_scope_get_parent(routine->scope);
     free_neo_scope(routine->scope);
     routine->scope = parent;
@@ -174,7 +174,7 @@ static void free_neo_co_context(neo_co_context routine) {
 
 struct _neo_context {
   neo_runtime rt;
-
+  neo_scope global;
   neo_co_context co_context;
 
   neo_error_callback error_cb;
@@ -188,7 +188,8 @@ neo_context create_neo_context(neo_runtime rt) {
   ctx->error_cb = neo_context_default_error_callback;
   ctx->error_cb_arg = NULL;
   ctx->rt = rt;
-  ctx->co_context = create_neo_co_context();
+  ctx->global = create_neo_scope(NULL);
+  ctx->co_context = create_neo_co_context(ctx->global);
   ctx->co_context->next = ctx->co_context;
   ctx->co_context->last = ctx->co_context;
   ctx->null = create_neo_null(ctx);
@@ -203,6 +204,7 @@ void free_neo_context(neo_context ctx) {
     free_neo_co_context(ctx->co_context->next);
   }
   free_neo_co_context(ctx->co_context);
+  free_neo_scope(ctx->global);
   free(ctx);
 }
 void neo_context_push_call_frame(neo_context self, const char *funcname,
@@ -276,6 +278,17 @@ neo_value neo_context_call(neo_context self, neo_value closure, int argc,
   for (int i = 0; i < argc; i++) {
     args[i] = neo_scope_clone_value(func_current, args[i]);
   }
+  neo_list keys = neo_closure_get_keys(self, closure);
+  neo_list_node node = neo_list_head(keys);
+  while (node != neo_list_tail(keys)) {
+    char *name = neo_list_node_get(node);
+    if (name) {
+      neo_value val = neo_closure_get(self, closure, name);
+      neo_scope_store_value(self->co_context->scope, name, val);
+    }
+    node = neo_list_node_next(node);
+  }
+  free_neo_list(keys);
   neo_value res = NULL;
   int is_error = 0;
   if (!setjmp(*context)) {
@@ -378,6 +391,17 @@ static void neo_co_schedule(neo_context ctx) {
   neo_context_push_call_frame(ctx, "<coroutine>", NULL, 0, 0);
   neo_context_push_call_frame(ctx, neo_closure_get_name(ctx, routine->func),
                               NULL, 0, 0);
+  neo_list keys = neo_closure_get_keys(ctx, routine->func);
+  neo_list_node node = neo_list_head(keys);
+  while (node != neo_list_tail(keys)) {
+    char *name = neo_list_node_get(node);
+    if (name) {
+      neo_value val = neo_closure_get(ctx, routine->func, name);
+      neo_scope_store_value(ctx->co_context->scope, name, val);
+    }
+    node = neo_list_node_next(node);
+  }
+  free_neo_list(keys);
   if (!setjmp(*context)) {
     neo_function func = neo_closure_get_function(ctx, routine->func);
     neo_value value = func(ctx, routine->argc, routine->argv);
@@ -397,7 +421,7 @@ static void neo_co_schedule(neo_context ctx) {
 neo_value neo_context_co_start(neo_context ctx, neo_value func, size_t argc,
                                neo_value *argv) {
   neo_value promise = create_neo_promise(ctx);
-  neo_co_context coroutine = create_neo_co_context();
+  neo_co_context coroutine = create_neo_co_context(ctx->global);
   coroutine->argc = argc;
   coroutine->argv = argv;
   coroutine->coroutine = neo_co_start((void (*)(void *))neo_co_schedule, ctx);

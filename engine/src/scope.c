@@ -75,3 +75,15 @@ void neo_scope_store_value(neo_scope self, const char *name, neo_value value) {
 neo_value neo_scope_load_value(neo_scope self, const char *name) {
   return neo_map_get(self->named, (void *)name);
 }
+neo_value neo_scope_query_value(neo_scope self, const char *name) {
+  neo_scope scope = self;
+  neo_value val = neo_scope_load_value(scope, name);
+  while (!val) {
+    scope = neo_scope_get_parent(scope);
+    if (!scope) {
+      return NULL;
+    }
+    val = neo_scope_load_value(scope, name);
+  }
+  return val;
+}

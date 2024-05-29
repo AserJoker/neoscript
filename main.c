@@ -150,7 +150,10 @@ int main(int argc, char *argv[]) {
   neo_init_array(rt);
 
   neo_init_custom(rt);
-
+  neo_context ctx = create_neo_context(rt);
+  neo_value neo_main_fn = create_neo_closure(ctx, neo_main, "neo_main");
+  neo_context_call(ctx, neo_main_fn, 0, NULL, __FILE__, __LINE__, 0);
+  free_neo_context(ctx);
   free_neo_runtime(rt);
   free(bytecodes);
   return 0;

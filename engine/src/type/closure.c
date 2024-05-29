@@ -2,6 +2,7 @@
 #include "atom.h"
 #include "context.h"
 #include "list.h"
+#include "map.h"
 #include "runtime.h"
 #include "scope.h"
 #include "strings.h"
@@ -13,7 +14,8 @@
 typedef struct _neo_closure_impl *neo_closure_impl;
 struct _neo_closure_impl {
   neo_function func;
-  neo_list values;
+  // neo_list values;
+  neo_map values;
   char *name;
   void *arg;
 };
@@ -23,7 +25,8 @@ void neo_closure_init(void *target, void *source, void *_) {
   neo_closure_impl src = (neo_closure_impl)source;
 
   dst->func = src->func;
-  dst->values = create_neo_list((neo_free_fn)free_neo_atom);
+  dst->values = create_neo_map((neo_compare_fn)strings_compare, free,
+                               (neo_free_fn)free_neo_atom);
   dst->name = strings_clone(src->name);
   dst->arg = NULL;
 }
@@ -32,7 +35,7 @@ void free_neo_closure(void *target, void *_) {
   if (closure->name) {
     free(closure->name);
   }
-  free_neo_list(closure->values);
+  free_neo_map(closure->values);
 }
 
 void neo_init_closure(neo_runtime runtime) {
@@ -57,31 +60,34 @@ neo_function neo_closure_get_function(neo_context ctx, neo_value value) {
   neo_closure_impl impl = (neo_closure_impl)neo_value_get_data(value);
   return impl->func;
 }
-int32_t neo_closure_add(neo_context ctx, neo_value value, neo_value val) {
+
+void neo_closure_add(neo_context ctx, neo_value value, const char *name,
+                     neo_value val) {
   CHECK_TYPE(NEO_TYPE_FUNCTION);
   neo_closure_impl impl = (neo_closure_impl)neo_value_get_data(value);
   neo_atom atom = neo_value_get_atom(val);
+  neo_atom old = neo_map_get(impl->values, (void *)name);
+  if (old == atom) {
+    return;
+  }
   neo_atom root = neo_value_get_atom(value);
+  neo_atom_remove_ref(old, root);
   neo_atom_add_ref(atom, root);
-  int32_t index = neo_list_length(impl->values);
-  neo_list_push(impl->values, atom);
-  return index;
+  neo_map_set(impl->values, strings_clone(name), atom);
 }
-neo_value neo_closure_get(neo_context ctx, neo_value value, int32_t index) {
+neo_value neo_closure_get(neo_context ctx, neo_value value, const char *name) {
   CHECK_TYPE(NEO_TYPE_FUNCTION);
   neo_closure_impl impl = (neo_closure_impl)neo_value_get_data(value);
-  neo_list_node node = neo_list_node_next(neo_list_head(impl->values));
-  for (int i = 0; i < index; i++) {
-    if (node == neo_list_tail(impl->values)) {
-      return neo_context_get_null(ctx);
-    }
-    node = neo_list_node_next(node);
-  }
-  neo_atom atom = neo_list_node_get(node);
+  neo_atom atom = neo_map_get(impl->values, (void *)name);
   if (atom) {
     return create_neo_value(neo_context_get_scope(ctx), atom);
   }
   return neo_context_get_null(ctx);
+}
+neo_list neo_closure_get_keys(neo_context ctx, neo_value value) {
+  CHECK_TYPE(NEO_TYPE_FUNCTION);
+  neo_closure_impl impl = (neo_closure_impl)neo_value_get_data(value);
+  return neo_map_keys(impl->values);
 }
 const char *neo_closure_get_name(neo_context ctx, neo_value value) {
   CHECK_TYPE(NEO_TYPE_FUNCTION);
@@ -98,10 +104,4 @@ void *neo_closure_get_arg(neo_context ctx, neo_value value) {
   CHECK_TYPE(NEO_TYPE_FUNCTION);
   neo_closure_impl impl = (neo_closure_impl)neo_value_get_data(value);
   return impl->arg;
-}
-
-size_t neo_closure_get_length(neo_context ctx, neo_value value) {
-  CHECK_TYPE(NEO_TYPE_FUNCTION);
-  neo_closure_impl impl = (neo_closure_impl)neo_value_get_data(value);
-  return neo_list_length(impl->values);
 }

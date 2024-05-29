@@ -1,5 +1,6 @@
 #ifndef __NEO_ENGINE_CLOSURE__
 #define __NEO_ENGINE_CLOSURE__
+#include "list.h"
 #include "runtime.h"
 #include "type.h"
 
@@ -13,9 +14,10 @@ void *neo_closure_get_arg(neo_context ctx, neo_value self);
 
 neo_function neo_closure_get_function(neo_context ctx, neo_value self);
 
-int32_t neo_closure_add(neo_context ctx, neo_value self, neo_value val);
-neo_value neo_closure_get(neo_context ctx, neo_value self, int32_t index);
-size_t neo_closure_get_length(neo_context ctx, neo_value self);
+void neo_closure_add(neo_context ctx, neo_value self, const char *name,
+                     neo_value val);
+neo_value neo_closure_get(neo_context ctx, neo_value self, const char *name);
+neo_list neo_closure_get_keys(neo_context ctx, neo_value self);
 
 const char *neo_closure_get_name(neo_context ctx, neo_value self);
 
