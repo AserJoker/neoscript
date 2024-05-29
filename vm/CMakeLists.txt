@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 aux_source_directory(./src VM_SRC)
 aux_source_directory(./src/type VM_SRC_TYPE)
+aux_source_directory(./src/ast VM_SRC_AST)
+aux_source_directory(./src/resolver VM_SRC_RESOLVER)
 include_directories(./include)
-add_library(${NEO_PROJECT_NAME}-vm STATIC ${VM_SRC} ${VM_SRC_TYPE})
+add_library(${NEO_PROJECT_NAME}-vm STATIC ${VM_SRC} ${VM_SRC_TYPE} ${VM_SRC_AST} ${VM_SRC_RESOLVER})
