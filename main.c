@@ -1,7 +1,13 @@
 #include "ast/ast.h"
+#include "astdef.h"
 #include "context.h"
+#include "operator/expr.h"
+#include "operatordef.h"
+#include "resolver/binary.h"
+#include "resolver/float.h"
 #include "resolver/integer.h"
-#include "resolverdef.h"
+#include "resolver/string.h"
+#include "resolver/symbol.h"
 #include "runtime.h"
 #include "scope.h"
 #include "type.h"
@@ -18,6 +24,7 @@
 #include "type/uint32.h"
 #include "type/uint64.h"
 #include "type/uint8.h"
+#include "value.h"
 #include "vm.h"
 #include <stdint.h>
 int main(int argc, char *argv[]) {
@@ -40,12 +47,27 @@ int main(int argc, char *argv[]) {
   neo_init_array(rt);
 
   neo_init_custom(rt);
+
+  neo_runtime_define_operator(rt, NEO_OPERATOR_ADD, neo_operator_expr);
+  neo_runtime_define_operator(rt, NEO_OPERATOR_SUBTRACT, neo_operator_expr);
+  neo_runtime_define_operator(rt, NEO_OPERATOR_MULTIPLY, neo_operator_expr);
+  neo_runtime_define_operator(rt, NEO_OPERATOR_DIVIDE, neo_operator_expr);
+
   neo_context ctx = create_neo_context(rt);
   neo_vm vm = create_neo_vm(ctx);
 
-  neo_vm_set_resolver(vm, NEO_RESOLVER_TYPE_INTEGER, neo_resolver_integer);
-  neo_ast ast = create_neo_integer_ast(123);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_INTEGER, neo_resolver_integer);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_FLOAT, neo_resolver_float);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_STRING, neo_resolver_string);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_SYMBOL, neo_resolver_symbol);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_BINARY, neo_resolver_binary);
+
+  neo_ast ast =
+      create_neo_ast(NEO_AST_TYPE_BINARY, NEO_OPERATOR_SUBTRACT,
+                     create_neo_integer_ast(2), create_neo_integer_ast(4));
+
   neo_value value = neo_vm_eval(vm, ast);
+  printf("%ld\n", neo_value_to_int64(ctx, value));
   free_neo_ast(ast);
   free_neo_vm(vm);
   free_neo_context(ctx);

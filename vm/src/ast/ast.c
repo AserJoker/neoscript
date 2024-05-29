@@ -13,6 +13,7 @@ neo_ast create_neo_ast(uint32_t type, uint32_t data, neo_ast left,
   node->type = type;
   node->left = left;
   node->right = right;
+  node->data = data;
   return node;
 }
 void free_neo_ast(neo_ast ast) {
