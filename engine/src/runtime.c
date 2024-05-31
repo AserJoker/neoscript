@@ -1,5 +1,4 @@
 #include "runtime.h"
-#include "imap.h"
 #include "list.h"
 #include "type.h"
 #include "type/closure.h"
@@ -11,14 +10,12 @@
 
 struct _neo_runtime {
   neo_list types;
-  neo_imap operators;
 };
 
 neo_runtime create_neo_runtime() {
   neo_runtime rt = (neo_runtime)malloc(sizeof(struct _neo_runtime));
   assert(rt != NULL);
   rt->types = create_neo_list((neo_free_fn)free_neo_type);
-  rt->operators = create_neo_imap(NULL);
 
   neo_null_init(rt);
   neo_init_exception(rt);
@@ -31,7 +28,6 @@ void free_neo_runtime(neo_runtime runtime) {
   if (!runtime) {
     return;
   }
-  free_neo_imap(runtime->operators);
   free_neo_list(runtime->types);
   free(runtime);
 }
@@ -62,11 +58,4 @@ neo_type neo_runtime_get_type(neo_runtime self, uint32_t name) {
     node = neo_list_node_next(node);
   }
   return NULL;
-}
-void neo_runtime_define_operator(neo_runtime self, uint32_t opt,
-                                 neo_operator_fn fn) {
-  neo_imap_set(self->operators, opt, fn);
-}
-neo_operator_fn neo_runtime_get_operator(neo_runtime self, uint32_t opt) {
-  return neo_imap_get(self->operators, opt);
 }

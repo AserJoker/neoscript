@@ -38,3 +38,8 @@ int8_t neo_value_to_boolean(neo_context ctx, neo_value value) {
   int8_t *data = (int8_t *)neo_value_get_data(value);
   return *data;
 }
+void neo_boolean_set_value(neo_context ctx, neo_value value, uint8_t val) {
+  CHECK_TYPE(NEO_VM_TYPE_BOOLEAN);
+  int8_t *data = (int8_t *)neo_value_get_data(value);
+  *data = val;
+}

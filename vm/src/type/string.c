@@ -43,3 +43,11 @@ const char *neo_value_to_string(neo_context ctx, neo_value value) {
   neo_string str = neo_value_get_data(value);
   return str->str;
 }
+void neo_string_set_value(neo_context ctx, neo_value value, const char *val) {
+  CHECK_TYPE(NEO_VM_TYPE_STRING);
+  neo_string str = neo_value_get_data(value);
+  if (str->str) {
+    free(str->str);
+  }
+  str->str = strings_clone(val);
+}

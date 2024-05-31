@@ -313,17 +313,7 @@ neo_value neo_context_call(neo_context self, neo_value closure, int argc,
 }
 neo_value neo_context_get_null(neo_context self) { return self->null; }
 
-neo_value neo_context_operator(neo_context self, uint32_t opt, int argc,
-                               neo_value *argv) {
-  neo_operator_fn operator= neo_runtime_get_operator(self->rt, opt);
-  if (operator) {
-    neo_value result = operator(self, opt, argc, argv);
-    return result;
-  }
-  neo_context_throw(self, create_neo_exception(self, "unsupport operator", NULL,
-                                               __FILE__, __LINE__, 1));
-  return NULL;
-}
+
 neo_list neo_context_trace(neo_context self, const char *filename, int line,
                            int column) {
   neo_list trace = create_neo_list(free);

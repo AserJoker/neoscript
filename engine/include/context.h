@@ -28,9 +28,6 @@ neo_value neo_context_get_closure(neo_context self);
 
 neo_value neo_context_create_value(neo_context self, neo_type type, void *init);
 
-neo_value neo_context_operator(neo_context self, uint32_t opt, int argc,
-                               neo_value *argv);
-
 neo_list neo_context_trace(neo_context self, const char *filename, int line,
                            int column);
 

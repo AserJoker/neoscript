@@ -45,3 +45,11 @@ void *neo_value_to_custom(neo_context ctx, neo_value value) {
   neo_custom custom = (neo_custom)neo_value_get_data(value);
   return custom->data;
 }
+void neo_custom_set_value(neo_context ctx, neo_value value, void *val) {
+  CHECK_TYPE(NEO_VM_TYPE_CUSTOM);
+  neo_custom custom = (neo_custom)neo_value_get_data(value);
+  if (custom->data && custom->autofree) {
+    custom->autofree(custom->data);
+  }
+  custom->data = val;
+}
