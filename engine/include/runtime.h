@@ -6,9 +6,9 @@
 #include <stdio.h>
 
 #define NEO_TYPE_NULL 0
-#define NEO_TYPE_EXCEPTION -1
-#define NEO_TYPE_PROMISE -2
-#define NEO_TYPE_FUNCTION -3
+#define NEO_TYPE_EXCEPTION 1
+#define NEO_TYPE_PROMISE 2
+#define NEO_TYPE_FUNCTION 3
 
 typedef struct _neo_runtime *neo_runtime;
 

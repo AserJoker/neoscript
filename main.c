@@ -1,12 +1,14 @@
 #include "ast/ast.h"
 #include "astdef.h"
 #include "context.h"
+#include "resolver/add.h"
 #include "resolver/float.h"
 #include "resolver/integer.h"
 #include "resolver/string.h"
 #include "resolver/symbol.h"
 #include "runtime.h"
 #include "scope.h"
+#include "tostring.h"
 #include "type.h"
 #include "type/array.h"
 #include "type/boolean.h"
@@ -18,6 +20,7 @@
 #include "value.h"
 #include "vm.h"
 #include <stdint.h>
+#include <stdlib.h>
 int main(int argc, char *argv[]) {
   neo_runtime rt = create_neo_runtime();
 
@@ -36,10 +39,14 @@ int main(int argc, char *argv[]) {
   neo_vm_set_resolver(vm, NEO_AST_TYPE_FLOAT, neo_resolver_float);
   neo_vm_set_resolver(vm, NEO_AST_TYPE_STRING, neo_resolver_string);
   neo_vm_set_resolver(vm, NEO_AST_TYPE_SYMBOL, neo_resolver_symbol);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_ADD, neo_resolver_add);
 
   neo_ast ast = create_neo_ast(NEO_AST_TYPE_ADD, 0, create_neo_integer_ast(2),
-                               create_neo_integer_ast(4));
+                               create_neo_string_ast("hello world"));
   neo_value value = neo_vm_eval(vm, ast);
+  char *res = neo_to_string(ctx, value);
+  printf("%s\n", res);
+  free(res);
   free_neo_ast(ast);
   free_neo_vm(vm);
   free_neo_context(ctx);

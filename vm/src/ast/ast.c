@@ -52,7 +52,7 @@ neo_ast create_neo_string_ast(const char *value) {
   neo_ast node = (neo_ast)malloc(sizeof(struct _neo_ast));
   memset(node, 0, sizeof(struct _neo_ast));
   node->type = NEO_AST_TYPE_STRING;
-  node->s_data = strings_clone(value);
+  node->s_data = value;
   return node;
 }
 neo_ast create_neo_symbol_ast(const char *value) {

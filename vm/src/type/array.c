@@ -64,6 +64,9 @@ neo_value neo_array_get_index(neo_context ctx, neo_value value, int32_t index) {
   if (index >= impl->length) {
     return neo_context_get_null(ctx);
   }
+  if (!impl->buffer[index]) {
+    return neo_context_get_null(ctx);
+  }
   return create_neo_value(neo_context_get_scope(ctx), impl->buffer[index]);
 }
 void neo_array_set_index(neo_context ctx, neo_value value, int32_t index,
