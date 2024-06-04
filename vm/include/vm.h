@@ -1,7 +1,7 @@
 #ifndef __NEO_VM_VM__
 #define __NEO_VM_VM__
 #include "ast/ast.h"
-#include "type.h"
+#include "engine/include/context.h"
 typedef struct _neo_vm *neo_vm;
 typedef neo_value (*neo_vm_resolver)(neo_vm vm, neo_ast ast);
 neo_vm create_neo_vm(neo_context ctx);

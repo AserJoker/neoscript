@@ -1,8 +1,8 @@
 #ifndef __NEO_ENGINE_TYPE_EXCEPTION__
 #define __NEO_ENGINE_TYPE_EXCEPTION__
-#include "list.h"
-#include "runtime.h"
-#include "type.h"
+#include "common/include/list.h"
+#include "engine/include/runtime.h"
+#include "engine/include/type.h"
 void neo_init_exception(neo_runtime runtime);
 
 neo_value create_neo_exception(neo_context ctx, const char *message,

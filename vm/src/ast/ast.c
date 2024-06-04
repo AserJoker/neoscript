@@ -1,6 +1,6 @@
 #include "ast/ast.h"
 #include "astdef.h"
-#include "strings.h"
+#include "common/include/strings.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>

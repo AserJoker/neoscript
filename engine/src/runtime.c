@@ -1,5 +1,4 @@
 #include "runtime.h"
-#include "list.h"
 #include "type.h"
 #include "type/closure.h"
 #include "type/exception.h"

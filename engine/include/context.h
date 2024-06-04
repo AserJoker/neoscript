@@ -1,6 +1,6 @@
 #ifndef __NEO_ENGINE_CONTEXT__
 #define __NEO_ENGINE_CONTEXT__
-#include "list.h"
+#include "common/include/list.h"
 #include "runtime.h"
 #include "scope.h"
 #include "type.h"

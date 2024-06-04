@@ -1,7 +1,7 @@
 #ifndef __NEO_ENGINE_TYPE_PROMISE__
 #define __NEO_ENGINE_TYPE_PROMISE__
-#include "runtime.h"
-#include "type.h"
+#include "engine/include/runtime.h"
+#include "engine/include/type.h"
 void neo_init_promise(neo_runtime runtime);
 
 typedef enum PromiseStatus {

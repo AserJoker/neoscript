@@ -1,7 +1,6 @@
-#include "context.h"
-#include "runtime.h"
-#include "type.h"
-#include "type/closure.h"
+
+#include "engine/include/context.h"
+#include "engine/include/type/closure.h"
 #include <assert.h>
 #define IS_CALLED 1
 int is_called = 0;

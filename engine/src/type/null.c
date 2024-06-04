@@ -2,6 +2,7 @@
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
+#include "typedef.h"
 
 void neo_null_init(neo_runtime rt) {
   neo_type neo_null = create_neo_type(NEO_TYPE_NULL, 0, NULL);

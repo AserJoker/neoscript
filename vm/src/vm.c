@@ -1,8 +1,6 @@
 #include "vm.h"
-#include "context.h"
-#include "imap.h"
-#include "type.h"
-#include "type/exception.h"
+#include "common/include/imap.h"
+#include "engine/include/type/exception.h"
 #include <stdlib.h>
 struct _neo_vm {
   neo_context ctx;

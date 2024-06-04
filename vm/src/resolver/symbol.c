@@ -1,7 +1,4 @@
 #include "resolver/symbol.h"
-#include "context.h"
-#include "scope.h"
-#include "value.h"
 #include "vm.h"
 neo_value neo_resolver_symbol(neo_vm vm, neo_ast node) {
   neo_context ctx = neo_vm_get_context(vm);

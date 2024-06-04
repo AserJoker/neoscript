@@ -1,11 +1,11 @@
 #include "atom.h"
+#include "common/include/strings.h"
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
-#include "list.h"
-#include "strings.h"
 #include "value.h"
 #include <stdlib.h>
+#include "typedef.h"
 
 typedef struct _neo_exception_impl *neo_exception_impl;
 struct _neo_exception_impl {

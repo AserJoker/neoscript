@@ -14,6 +14,8 @@ typedef neo_value (*neo_function)(neo_context ctx, size_t argc,
 typedef void (*neo_hook_init_fn)(void *buf, void *input, void *);
 typedef void (*neo_hook_dispose_fn)(void *buf, void *);
 typedef neo_atom (*neo_hook_copy_fn)(neo_atom atom, void *);
+typedef char *(*neo_hook_to_string_fn)(void *data, void *);
+typedef int8_t (*neo_hook_to_boolean_fn)(void *data, void *);
 
 typedef struct _neo_type_hook {
   neo_hook_init_fn init;

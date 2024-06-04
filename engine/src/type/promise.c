@@ -5,6 +5,7 @@
 #include "scope.h"
 #include "type.h"
 #include "type/exception.h"
+#include "typedef.h"
 #include "value.h"
 #include <stdio.h>
 

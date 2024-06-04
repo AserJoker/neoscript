@@ -1,7 +1,7 @@
 #include "atom.h"
-#include "list.h"
-#include "map.h"
-#include "strings.h"
+#include "common/include/list.h"
+#include "common/include/map.h"
+#include "common/include/strings.h"
 #include "type.h"
 
 #include "scope.h"

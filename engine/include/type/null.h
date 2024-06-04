@@ -3,7 +3,7 @@
 
 #include "context.h"
 #include "runtime.h"
-#include "value.h"
+#include "type.h"
 
 void neo_null_init(neo_runtime rt);
 neo_value create_neo_null(neo_context ctx);

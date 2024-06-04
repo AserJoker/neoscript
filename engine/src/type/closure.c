@@ -1,13 +1,13 @@
 #include "type/closure.h"
 #include "atom.h"
+#include "common/include/map.h"
+#include "common/include/strings.h"
 #include "context.h"
-#include "list.h"
-#include "map.h"
 #include "runtime.h"
 #include "scope.h"
-#include "strings.h"
 #include "type.h"
 #include "type/exception.h"
+#include "typedef.h"
 #include "value.h"
 #include <assert.h>
 #include <stdlib.h>
