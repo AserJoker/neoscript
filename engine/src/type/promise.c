@@ -4,7 +4,6 @@
 #include "runtime.h"
 #include "scope.h"
 #include "type.h"
-#include "type/exception.h"
 #include "typedef.h"
 #include "value.h"
 #include <stdio.h>
@@ -14,14 +13,14 @@ typedef struct _neo_promise_impl {
   PromiseStatus status;
 } *neo_promise_impl;
 
-void neo_promise_init(void *target, void *_, void *__) {
+static void neo_init_promise(void *target, void *_, void *__) {
   neo_promise_impl dst = (neo_promise_impl)target;
   dst->status = PROMISE_PENDDING;
   dst->value = NULL;
 }
 
-void neo_init_promise(neo_runtime runtime) {
-  neo_type_hook hook = {neo_promise_init, 0, 0, 0, neo_atom_copy_ref, 0};
+void neo_promise_init(neo_runtime runtime) {
+  neo_type_hook hook = {neo_init_promise, 0, 0, 0, neo_atom_copy_ref, 0};
   neo_type neo_promise =
       create_neo_type(NEO_TYPE_PROMISE, sizeof(struct _neo_type_hook), &hook);
   neo_runtime_define_type(runtime, neo_promise);
@@ -29,9 +28,6 @@ void neo_init_promise(neo_runtime runtime) {
 neo_value create_neo_promise(neo_context ctx) {
   neo_type neo_promise =
       neo_runtime_get_type(neo_context_get_runtime(ctx), NEO_TYPE_PROMISE);
-  if (!neo_promise) {
-    neo_context_throw_exception(ctx, "unsupport value type promise");
-  }
   return neo_context_create_value(ctx, neo_promise, NULL);
 }
 neo_value neo_promise_get_value(neo_value value, neo_context ctx) {

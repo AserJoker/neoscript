@@ -3,9 +3,9 @@
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
+#include "typedef.h"
 #include "value.h"
 #include <stdlib.h>
-#include "typedef.h"
 
 typedef struct _neo_exception_impl *neo_exception_impl;
 struct _neo_exception_impl {
@@ -14,21 +14,21 @@ struct _neo_exception_impl {
   neo_atom caused;
 };
 
-void neo_exception_init(void *target, void *source, void *_) {
+static void neo_init_exception(void *target, void *source, void *_) {
   neo_exception_impl dst = (neo_exception_impl)target;
   neo_exception_impl src = (neo_exception_impl)source;
   dst->message = strings_clone(src->message);
   dst->caused = src->caused;
   dst->stack = src->stack;
 }
-void neo_exception_dispose(void *target, void *_) {
+static void neo_dispose_exception(void *target, void *_) {
   neo_exception_impl dst = (neo_exception_impl)target;
   free_neo_list(dst->stack);
   free(dst->message);
 }
 
-void neo_init_exception(neo_runtime runtime) {
-  neo_type_hook hook = {neo_exception_init, 0, neo_exception_dispose, 0,
+void neo_exception_init(neo_runtime runtime) {
+  neo_type_hook hook = {neo_init_exception, 0, neo_dispose_exception, 0,
                         neo_atom_copy_ref,  0};
   neo_type neo_exception = create_neo_type(
       NEO_TYPE_EXCEPTION, sizeof(struct _neo_exception_impl), &hook);

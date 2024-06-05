@@ -6,7 +6,6 @@
 #include "runtime.h"
 #include "scope.h"
 #include "type.h"
-#include "type/exception.h"
 #include "typedef.h"
 #include "value.h"
 #include <assert.h>
@@ -19,7 +18,7 @@ struct _neo_closure_impl {
   void *arg;
 };
 
-void neo_closure_init(void *target, void *source, void *_) {
+static void neo_init_closure(void *target, void *source, void *_) {
   neo_closure_impl dst = (neo_closure_impl)target;
   neo_closure_impl src = (neo_closure_impl)source;
 
@@ -28,7 +27,7 @@ void neo_closure_init(void *target, void *source, void *_) {
   dst->name = strings_clone(src->name);
   dst->arg = NULL;
 }
-void free_neo_closure(void *target, void *_) {
+static void neo_dispose_closure(void *target, void *_) {
   neo_closure_impl closure = (neo_closure_impl)target;
   if (closure->name) {
     free(closure->name);
@@ -36,8 +35,8 @@ void free_neo_closure(void *target, void *_) {
   free_neo_map(closure->values);
 }
 
-void neo_init_closure(neo_runtime runtime) {
-  neo_type_hook hook = {neo_closure_init,  0, free_neo_closure, 0,
+void neo_closure_init(neo_runtime runtime) {
+  neo_type_hook hook = {neo_init_closure,  0, neo_dispose_closure, 0,
                         neo_atom_copy_ref, 0};
   neo_type neo_closure = create_neo_type(
       NEO_TYPE_FUNCTION, sizeof(struct _neo_closure_impl), &hook);
@@ -47,9 +46,6 @@ neo_value create_neo_closure(neo_context ctx, neo_function func,
                              const char *name) {
   neo_type neo_closure =
       neo_runtime_get_type(neo_context_get_runtime(ctx), NEO_TYPE_FUNCTION);
-  if (!neo_closure) {
-    neo_context_throw_exception(ctx, "unsupport value type promise");
-  }
   struct _neo_closure_impl impl = {func, NULL, (char *)name};
   return neo_context_create_value(ctx, neo_closure, &impl);
 }

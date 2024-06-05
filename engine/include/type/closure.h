@@ -4,7 +4,7 @@
 #include "engine/include/runtime.h"
 #include "engine/include/type.h"
 
-void neo_init_closure(neo_runtime runtime);
+void neo_closure_init(neo_runtime runtime);
 
 neo_value create_neo_closure(neo_context ctx, neo_function func,
                              const char *name);

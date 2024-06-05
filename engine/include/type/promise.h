@@ -2,7 +2,7 @@
 #define __NEO_ENGINE_TYPE_PROMISE__
 #include "engine/include/runtime.h"
 #include "engine/include/type.h"
-void neo_init_promise(neo_runtime runtime);
+void neo_promise_init(neo_runtime runtime);
 
 typedef enum PromiseStatus {
   PROMISE_FULFILLED,

@@ -1,9 +1,13 @@
 #include "runtime.h"
 #include "type.h"
+#include "type/array.h"
+#include "type/boolean.h"
 #include "type/closure.h"
 #include "type/exception.h"
 #include "type/null.h"
+#include "type/number.h"
 #include "type/promise.h"
+#include "type/string.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -17,9 +21,13 @@ neo_runtime create_neo_runtime() {
   rt->types = create_neo_list((neo_free_fn)free_neo_type);
 
   neo_null_init(rt);
-  neo_init_exception(rt);
-  neo_init_closure(rt);
-  neo_init_promise(rt);
+  neo_boolean_init(rt);
+  neo_number_init(rt);
+  neo_string_init(rt);
+  neo_array_init(rt);
+  neo_exception_init(rt);
+  neo_closure_init(rt);
+  neo_promise_init(rt);
   return rt;
 }
 
