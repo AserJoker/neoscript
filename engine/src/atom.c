@@ -127,3 +127,15 @@ neo_atom neo_atom_copy_val(neo_atom src, void *_) {
   return create_neo_atom(src->type, src->data);
 }
 neo_atom neo_atom_copy_ref(neo_atom src, void *_) { return src; }
+neo_atom neo_atom_clone(neo_atom self, neo_type type, void *data) {
+  neo_atom atom = create_neo_atom(type, data);
+  neo_list_node node = neo_list_head(atom->parents);
+  while (node != neo_list_tail(atom->parents)) {
+    neo_atom parent = neo_list_node_get(node);
+    if (parent) {
+      neo_atom_add_ref(atom, parent);
+    }
+    node = neo_list_node_next(node);
+  }
+  return atom;
+}

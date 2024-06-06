@@ -6,6 +6,7 @@ neo_atom create_neo_atom(neo_type type, void *value);
 void free_neo_atom(neo_atom atom);
 
 void neo_atom_set(neo_atom self, void *data);
+neo_atom neo_atom_clone(neo_atom self, neo_type type, void *data);
 void *neo_atom_get(neo_atom self);
 
 void neo_atom_add_ref(neo_atom self, neo_atom parent);

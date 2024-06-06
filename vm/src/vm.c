@@ -34,6 +34,7 @@
 #include "resolver/or_and_set.h"
 #include "resolver/right_shift.h"
 #include "resolver/right_shift_and_set.h"
+#include "resolver/set.h"
 #include "resolver/string.h"
 #include "resolver/sub.h"
 #include "resolver/sub_and_set.h"
@@ -88,6 +89,7 @@ neo_vm create_neo_vm(neo_context ctx) {
   neo_vm_set_resolver(vm, NEO_AST_TYPE_RIGHT_SHIFT_AND_SET,
                       neo_resolver_right_shift_and_set);
   neo_vm_set_resolver(vm, NEO_AST_TYPE_COMMA, neo_resolver_comma);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_SET, neo_resolver_set);
   return vm;
 }
 neo_context neo_vm_get_context(neo_vm self) { return self->ctx; }
