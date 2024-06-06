@@ -7,6 +7,7 @@
 #include "typedef.h"
 #include "value.h"
 #include <stdlib.h>
+#include <string.h>
 typedef struct _neo_string_impl *neo_string_impl;
 struct _neo_string_impl {
   char *data;
@@ -20,9 +21,22 @@ static void neo_dispose_string(void *target, void *_) {
   neo_string_impl dst = (neo_string_impl)target;
   free(dst->data);
 }
+static int8_t neo_convert_string(void *data, uint32_t type, void *output,
+                                 void *_) {
+  switch (type) {
+  case NEO_TYPE_BOOLEAN:
+    *(int8_t *)output = strlen(((neo_string_impl)data)->data) != 0;
+    return 1;
+  case NEO_TYPE_STRING: {
+    *(char **)output = strings_clone(((neo_string_impl)data)->data);
+    return 1;
+  }
+  }
+  return 0;
+}
 void neo_string_init(neo_runtime runtime) {
   neo_type_hook hook = {neo_init_string,   0, neo_dispose_string, 0,
-                        neo_atom_copy_val, 0};
+                        neo_atom_copy_val, 0, neo_convert_string, 0};
   neo_type neo_string =
       create_neo_type(NEO_TYPE_STRING, sizeof(struct _neo_string_impl), &hook);
   neo_runtime_define_type(runtime, neo_string);

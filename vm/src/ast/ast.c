@@ -18,8 +18,7 @@ neo_ast create_neo_ast(uint32_t type, uint32_t data, neo_ast left,
 }
 void free_neo_ast(neo_ast ast) {
   switch (ast->type) {
-  case NEO_AST_TYPE_INTEGER:
-  case NEO_AST_TYPE_FLOAT:
+  case NEO_AST_TYPE_NUMBER:
   case NEO_AST_TYPE_STRING:
   case NEO_AST_TYPE_SYMBOL:
     break;
@@ -34,17 +33,18 @@ void free_neo_ast(neo_ast ast) {
   }
   free(ast);
 }
-neo_ast create_neo_integer_ast(int64_t value) {
+
+neo_ast create_neo_boolean_ast(int8_t value) {
   neo_ast node = (neo_ast)malloc(sizeof(struct _neo_ast));
   memset(node, 0, sizeof(struct _neo_ast));
-  node->type = NEO_AST_TYPE_INTEGER;
-  node->i_data = value;
+  node->type = NEO_AST_TYPE_BOOLEAN;
+  node->b_data = value;
   return node;
 }
-neo_ast create_neo_float_ast(double value) {
+neo_ast create_neo_number_ast(double value) {
   neo_ast node = (neo_ast)malloc(sizeof(struct _neo_ast));
   memset(node, 0, sizeof(struct _neo_ast));
-  node->type = NEO_AST_TYPE_FLOAT;
+  node->type = NEO_AST_TYPE_NUMBER;
   node->f_data = value;
   return node;
 }

@@ -22,7 +22,7 @@ neo_type create_neo_type(const int32_t name, const size_t size,
   return t;
 }
 
-neo_type_hook neo_type_get_hook(neo_type type) { return type->hook; }
+neo_type_hook *neo_type_get_hook(neo_type type) { return &type->hook; }
 void free_neo_type(neo_type type) {
   if (type) {
     free(type);

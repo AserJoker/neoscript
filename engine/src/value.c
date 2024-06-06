@@ -45,3 +45,13 @@ neo_type neo_value_get_type(neo_value self) {
 }
 
 void *neo_value_get_data(neo_value self) { return neo_atom_get(self->atom); }
+
+int8_t neo_value_convert(neo_value self, uint32_t type, void *output) {
+  neo_type value_type = neo_value_get_type(self);
+  neo_type_hook *hook = neo_type_get_hook(value_type);
+  if (hook->convert) {
+    return hook->convert(neo_value_get_data(self), type, output,
+                         hook->convert_arg);
+  }
+  return 0;
+}

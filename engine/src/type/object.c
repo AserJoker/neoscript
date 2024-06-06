@@ -22,17 +22,33 @@ typedef struct _neo_attribute_impl {
 typedef struct _neo_object_impl {
   neo_map properties;
 } *neo_object_impl;
-void neo_init_object(void *target, void *source, void *_) {
+static void neo_init_object(void *target, void *source, void *_) {
   neo_object_impl dst = (neo_object_impl)target;
   dst->properties = create_neo_map((neo_compare_fn)strings_compare, free, free);
 }
-void neo_dispose_object(void *target, void *_) {
+static void neo_dispose_object(void *target, void *_) {
   neo_object_impl dst = (neo_object_impl)target;
   free_neo_map(dst->properties);
 }
+static int8_t neo_convert_object(void *data, uint32_t type, void *output,
+                                 void *_) {
+  switch (type) {
+  case NEO_TYPE_BOOLEAN:
+    *(int8_t *)output = 1;
+    return 1;
+  case NEO_TYPE_STRING: {
+    char buf[128];
+    sprintf(buf, "[Object 0x%lx]", (ptrdiff_t)data);
+    *(char **)output = strings_clone(buf);
+    return 1;
+  }
+  }
+  return 0;
+}
+
 void neo_object_init(neo_runtime rt) {
   neo_type_hook hook = {neo_init_object,   0, neo_dispose_object, 0,
-                        neo_atom_copy_ref, 0};
+                        neo_atom_copy_ref, 0, neo_convert_object, 0};
   neo_type neo_object =
       create_neo_type(NEO_TYPE_OBJECT, sizeof(struct _neo_object_impl), &hook);
   neo_runtime_define_type(rt, neo_object);

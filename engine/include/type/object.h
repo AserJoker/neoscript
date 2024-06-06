@@ -1,8 +1,8 @@
 #ifndef __NEO_ENGINE_TYPE_OBJECT__
 #define __NEO_ENGINE_TYPE_OBJECT__
 #include "common/include/list.h"
-#include "runtime.h"
-#include "type.h"
+#include "engine/include/runtime.h"
+#include "engine/include/type.h"
 
 typedef struct _neo_attribute {
   int8_t readonly;
@@ -11,7 +11,7 @@ typedef struct _neo_attribute {
   neo_value getter;
   neo_value setter;
   neo_value value;
-}* neo_attribute;
+} *neo_attribute;
 
 void neo_object_init(neo_runtime rt);
 

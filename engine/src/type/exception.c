@@ -1,4 +1,5 @@
 #include "atom.h"
+#include "common/include/list.h"
 #include "common/include/strings.h"
 #include "context.h"
 #include "runtime.h"
@@ -25,6 +26,44 @@ static void neo_dispose_exception(void *target, void *_) {
   neo_exception_impl dst = (neo_exception_impl)target;
   free_neo_list(dst->stack);
   free(dst->message);
+}
+static char *neo_exception_to_string(void *data) {
+  neo_exception_impl self = (neo_exception_impl)data;
+  const char *message = self->message;
+  neo_list result = create_neo_list(free);
+  char line[1024];
+  sprintf(line, "Error: %s", message);
+  neo_list_push(result, strings_clone(line));
+  neo_list stack = self->stack;
+  neo_list_node node = neo_list_head(stack);
+  while (node != neo_list_tail(stack)) {
+    char *frame = neo_list_node_get(node);
+    if (frame) {
+      sprintf(line, "\tat %s", frame);
+      neo_list_push(result, strings_clone(line));
+    }
+    node = neo_list_node_next(node);
+  }
+  neo_exception_impl caused = neo_atom_get(self->caused);
+  if (caused) {
+    char *caused_message = neo_exception_to_string(caused);
+    neo_list_push(result, caused_message);
+  }
+  char *result_str = strings_join(result, "\n");
+  free_neo_list(result);
+  return result_str;
+}
+static int8_t neo_convert_exception(void *data, uint32_t type, void *output,
+                                    void *_) {
+  switch (type) {
+  case NEO_TYPE_BOOLEAN:
+    *(int8_t *)output = 1;
+    return 1;
+  case NEO_TYPE_STRING:
+    *(char **)output = neo_exception_to_string(data);
+    return 1;
+  }
+  return 0;
 }
 
 void neo_exception_init(neo_runtime runtime) {

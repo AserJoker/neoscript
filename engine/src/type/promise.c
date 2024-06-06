@@ -1,5 +1,6 @@
 #include "type/promise.h"
 #include "atom.h"
+#include "common/include/strings.h"
 #include "context.h"
 #include "runtime.h"
 #include "scope.h"
@@ -18,9 +19,32 @@ static void neo_init_promise(void *target, void *_, void *__) {
   dst->status = PROMISE_PENDDING;
   dst->value = NULL;
 }
-
+static int8_t neo_convert_promise(void *data, uint32_t type, void *output,
+                                  void *_) {
+  switch (type) {
+  case NEO_TYPE_BOOLEAN:
+    *(int8_t *)output = 1;
+    return 1;
+  case NEO_TYPE_STRING: {
+    neo_promise_impl impl = (neo_promise_impl)data;
+    switch (impl->status) {
+    case PROMISE_FULFILLED:
+      *(char **)output = strings_clone("[Promise fulfilled]");
+      return 1;
+    case PROMISE_PENDDING:
+      *(char **)output = strings_clone("[Promise pendding]");
+      return 1;
+    case PROMISE_REJECTED:
+      *(char **)output = strings_clone("[Promise rejected]");
+      return 1;
+    }
+  }
+  }
+  return 0;
+}
 void neo_promise_init(neo_runtime runtime) {
-  neo_type_hook hook = {neo_init_promise, 0, 0, 0, neo_atom_copy_ref, 0};
+  neo_type_hook hook = {neo_init_promise,    0, 0, 0, neo_atom_copy_ref, 0,
+                        neo_convert_promise, 0};
   neo_type neo_promise =
       create_neo_type(NEO_TYPE_PROMISE, sizeof(struct _neo_type_hook), &hook);
   neo_runtime_define_type(runtime, neo_promise);

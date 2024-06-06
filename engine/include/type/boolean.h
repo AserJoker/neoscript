@@ -1,7 +1,7 @@
 #ifndef __NEO_ENGINE_TYPE_BOOLEAN__
 #define __NEO_ENGINE_TYPE_BOOLEAN__
-#include "runtime.h"
-#include "type.h"
+#include "engine/include/runtime.h"
+#include "engine/include/type.h"
 #define NEO_TRUE 1
 #define NEO_FALSE 0
 void neo_boolean_init(neo_runtime rt);

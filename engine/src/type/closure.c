@@ -34,10 +34,25 @@ static void neo_dispose_closure(void *target, void *_) {
   }
   free_neo_map(closure->values);
 }
-
+static int8_t neo_convert_closure(void *data, uint32_t type, void *output,
+                                  void *_) {
+  switch (type) {
+  case NEO_TYPE_BOOLEAN:
+    *(int8_t *)output = 1;
+    return 1;
+  case NEO_TYPE_STRING: {
+    char buf[128];
+    neo_closure_impl closure = (neo_closure_impl)data;
+    sprintf(buf, "[Function %s]", closure->name ? closure->name : "<no name>");
+    *(char **)output = strings_clone(buf);
+    return 1;
+  }
+  }
+  return 0;
+}
 void neo_closure_init(neo_runtime runtime) {
   neo_type_hook hook = {neo_init_closure,  0, neo_dispose_closure, 0,
-                        neo_atom_copy_ref, 0};
+                        neo_atom_copy_ref, 0, neo_convert_closure, 0};
   neo_type neo_closure = create_neo_type(
       NEO_TYPE_FUNCTION, sizeof(struct _neo_closure_impl), &hook);
   neo_runtime_define_type(runtime, neo_closure);

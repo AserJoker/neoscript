@@ -63,9 +63,9 @@ neo_value neo_scope_clone_value(neo_scope self, neo_value value) {
   }
   neo_atom atom = neo_value_get_atom(value);
   neo_type type = neo_atom_get_type(atom);
-  neo_type_hook hook = neo_type_get_hook(type);
-  if (hook.copy) {
-    return create_neo_value(self, hook.copy(atom, hook.copy_arg));
+  neo_type_hook *hook = neo_type_get_hook(type);
+  if (hook->copy) {
+    return create_neo_value(self, hook->copy(atom, hook->copy_arg));
   }
   return create_neo_value(self, atom);
 }

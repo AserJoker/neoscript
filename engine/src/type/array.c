@@ -1,5 +1,6 @@
 #include "type/array.h"
 #include "atom.h"
+#include "common/include/strings.h"
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
@@ -19,9 +20,24 @@ static void neo_dispose_array(void *target, void *_) {
   neo_array_impl dst = (neo_array_impl)target;
   free(dst->items);
 }
+static int8_t neo_convert_array(void *data, uint32_t type, void *output,
+                                void *_) {
+  switch (type) {
+  case NEO_TYPE_BOOLEAN:
+    *(int8_t *)output = 1;
+    return 1;
+  case NEO_TYPE_STRING: {
+    char buf[128];
+    sprintf(buf, "[Array 0x%lx]", (ptrdiff_t)data);
+    *(char **)output = strings_clone(buf);
+    return 1;
+  }
+  }
+  return 0;
+}
 void neo_array_init(neo_runtime runtime) {
   neo_type_hook hook = {neo_init_array,    0, neo_dispose_array, 0,
-                        neo_atom_copy_ref, 0};
+                        neo_atom_copy_ref, 0, neo_convert_array, 0};
   neo_type neo_array =
       create_neo_type(NEO_TYPE_ARRAY, sizeof(struct _neo_array_impl), &hook);
   neo_runtime_define_type(runtime, neo_array);
