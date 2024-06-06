@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
   neo_context ctx = create_neo_context(rt);
   neo_vm vm = create_neo_vm(ctx);
   neo_ast ast =
-      create_neo_ast(NEO_AST_TYPE_ADD, 0, create_neo_boolean_ast(NEO_TRUE),
+      create_neo_ast(NEO_AST_TYPE_SUB, 0, create_neo_boolean_ast(NEO_TRUE),
                      create_neo_number_ast(123));
   neo_value val = neo_vm_eval(vm, ast);
   char *buf = NULL;

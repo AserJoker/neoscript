@@ -10,6 +10,12 @@
 #include <string.h>
 neo_value neo_resolver_add(neo_vm vm, neo_ast node) {
   neo_context ctx = neo_vm_get_context(vm);
+  if (!node->right) {
+    neo_context_throw(ctx, create_neo_exception(ctx, "Invalid operator add",
+                                                NULL, node->start.filename,
+                                                node->start.line,
+                                                node->start.column));
+  }
   neo_value left = NULL;
   if (node->left) {
     left = neo_vm_eval(vm, node->left);
