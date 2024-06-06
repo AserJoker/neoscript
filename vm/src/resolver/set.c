@@ -11,6 +11,7 @@ neo_value neo_resolver_set(neo_vm vm, neo_ast node) {
                                                 node->start.line,
                                                 node->start.column));
   }
+  // TODO: field set,index set
   neo_value left = neo_vm_eval(vm, node->left);
   neo_value right = neo_vm_eval(vm, node->right);
   neo_atom right_atom = neo_value_get_atom(right);
