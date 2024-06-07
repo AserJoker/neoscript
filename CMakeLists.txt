@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(neo)
+project(neo C)
 set(NEO_PROJECT_NAME ${PROJECT_NAME})
 include_directories(.)
 add_subdirectory(./engine)
