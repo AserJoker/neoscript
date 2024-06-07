@@ -8,6 +8,7 @@
 #include "resolver/and.h"
 #include "resolver/and_and_set.h"
 #include "resolver/boolean.h"
+#include "resolver/call.h"
 #include "resolver/comma.h"
 #include "resolver/dec.h"
 #include "resolver/div.h"
@@ -23,6 +24,7 @@
 #include "resolver/logic_and.h"
 #include "resolver/logic_not.h"
 #include "resolver/logic_or.h"
+#include "resolver/member.h"
 #include "resolver/mod.h"
 #include "resolver/mod_and_set.h"
 #include "resolver/mul_and_set.h"
@@ -90,6 +92,8 @@ neo_vm create_neo_vm(neo_context ctx) {
                       neo_resolver_right_shift_and_set);
   neo_vm_set_resolver(vm, NEO_AST_TYPE_COMMA, neo_resolver_comma);
   neo_vm_set_resolver(vm, NEO_AST_TYPE_SET, neo_resolver_set);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_MEMBER, neo_resolver_member);
+  neo_vm_set_resolver(vm, NEO_AST_TYPE_CALL, neo_resolver_call);
   return vm;
 }
 neo_context neo_vm_get_context(neo_vm self) { return self->ctx; }
