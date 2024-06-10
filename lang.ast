@@ -1,0 +1,41 @@
+root:
+    -> program
+program:
+    -> meta_command + statements
+statements:
+    -> statement + (statements|statement)?
+statement:
+    -> function_statement
+    -> block_statement
+    -> if_statement 
+    -> switch_statement 
+    -> for_statement 
+    -> while_statement 
+    -> do_statement 
+    -> expression_statement 
+expression_statement:
+    -> expression
+expression:
+    -> var_expression
+    -> bracket_expression
+    -> logic_and_expression|logic_or_expression
+    -> add_expression|sub_expression
+    -> mul_expression|div_expression
+    -> mod_expression
+    -> comma_expression
+    -> increment_expression|decrement_expression
+    -> logic_not_expression
+    -> word
+    -> number
+    -> string
+    -> boolean
+    -> null
+switch_statement:
+    -> condition+case_statement
+case_statement:
+    -> case_body_statement + case_statement
+    -> default_statement
+case_body_statement:
+    -> condition + statement
+while_statement:
+    -> condition + statement
