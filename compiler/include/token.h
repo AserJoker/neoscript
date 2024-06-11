@@ -2,6 +2,7 @@
 #define __NEO_COMPILER_TOKEN__
 #include "common/include/cstring.h"
 #include "common/include/list.h"
+#include "position.h"
 #include <stdint.h>
 struct _neo_token {
   const cstring start;
@@ -13,6 +14,7 @@ struct _neo_token {
 };
 typedef struct _neo_token *neo_token;
 typedef struct _neo_tokenizer *neo_tokenizer;
+typedef int8_t (*neo_tokenizer_fn)(neo_tokenizer tokenizer);
 neo_token create_neo_token();
 void free_neo_token(neo_token token);
 neo_tokenizer create_neo_tokenizer();
@@ -21,4 +23,10 @@ int8_t neo_tokenizer_parse(neo_tokenizer tokenizer, const cstring source,
                            const cstring filename);
 neo_list neo_tokenizer_get_token_list(neo_tokenizer tokenizer);
 const char *neo_tokenizer_get_error(neo_tokenizer tokenizer);
+neo_position *neo_tokenizer_get_position(neo_tokenizer tokenizer);
+void neo_tokenizer_set_context(neo_tokenizer tokenizer, int32_t key,
+                               int32_t val);
+int32_t neo_tokenizer_get_context(neo_tokenizer tokenizer, int32_t key);
+void neo_tokenizer_add_tokenizer_fn(neo_tokenizer tokenizer,
+                                    neo_tokenizer_fn fn);
 #endif

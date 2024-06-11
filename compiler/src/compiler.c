@@ -87,3 +87,7 @@ neo_ast neo_compiler_compile(neo_compiler compiler, const cstring source,
 const char *neo_compiler_get_error(neo_compiler compiler) {
   return compiler->error;
 }
+
+neo_tokenizer neo_compiler_get_tokenizer(neo_compiler compiler) {
+  return compiler->tokenizer;
+}
