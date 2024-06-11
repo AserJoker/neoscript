@@ -1,28 +1,22 @@
-#include "engine/include/context.h"
-#include "engine/include/runtime.h"
-#include "engine/include/type/boolean.h"
-#include "engine/include/typedef.h"
-#include "engine/include/value.h"
-#include "vm/include/ast/ast.h"
-#include "vm/include/astdef.h"
-#include "vm/include/vm.h"
+#include "compiler/include/compiler.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
-int main(int argc, char *argv[]) {
-  neo_runtime rt = create_neo_runtime();
-  neo_context ctx = create_neo_context(rt);
-  neo_vm vm = create_neo_vm(ctx);
-  neo_ast ast =
-      create_neo_ast(NEO_AST_TYPE_SUB, 0, create_neo_boolean_ast(NEO_TRUE),
-                     create_neo_number_ast(123));
-  neo_value val = neo_vm_eval(vm, ast);
+int main(int argc, cstring argv[]) {
+  FILE *fp = fopen("./index.mjs", "r");
   char *buf = NULL;
-  neo_value_convert(val, NEO_TYPE_STRING, &buf);
-  printf("%s\n", buf);
+  fseek(fp, 0, SEEK_END);
+  size_t size = ftell(fp);
+  buf = malloc(size + 1);
+  buf[size] = 0;
+  fseek(fp, 0, SEEK_SET);
+  fread(buf, size, 1, fp);
+  fclose(fp);
+  neo_compiler compiler = create_neo_compiler();
+  if (!neo_compiler_compile(compiler, buf, "index.mjs")) {
+    printf("%s\n", neo_compiler_get_error(compiler));
+  }
   free(buf);
-  free_neo_ast(ast);
-  free_neo_vm(vm);
-  free_neo_context(ctx);
-  free_neo_runtime(rt);
+  free_neo_compiler(compiler);
   return 0;
 }

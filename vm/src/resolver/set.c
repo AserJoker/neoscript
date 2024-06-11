@@ -29,7 +29,7 @@ neo_value neo_resolver_set(neo_vm vm, neo_ast node) {
     neo_value key = neo_vm_eval(vm, node->left->right);
     neo_value value = neo_vm_eval(vm, node->right);
     if (neo_value_get_type_name(parent) == NEO_TYPE_OBJECT) {
-      char *key_s = NULL;
+      cstring key_s = NULL;
       if (neo_value_convert(key, NEO_TYPE_STRING, &key_s)) {
         neo_object_set_field(ctx, parent, key_s, value);
         free(key_s);

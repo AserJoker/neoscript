@@ -1,5 +1,5 @@
 #include "resolver/eq.h"
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "engine/include/type.h"
 #include "engine/include/type/boolean.h"
 #include "engine/include/type/exception.h"
@@ -35,7 +35,7 @@ neo_value neo_resolver_eq(neo_vm vm, neo_ast node) {
                                          neo_value_get_number(ctx, right));
     case NEO_TYPE_STRING:
       return create_neo_boolean(
-          ctx, strings_compare(neo_value_get_string(ctx, left),
+          ctx, cstring_compare(neo_value_get_string(ctx, left),
                                neo_value_get_string(ctx, right)));
     case NEO_TYPE_ARRAY:
     case NEO_TYPE_OBJECT:
@@ -44,6 +44,8 @@ neo_value neo_resolver_eq(neo_vm vm, neo_ast node) {
     case NEO_TYPE_FUNCTION:
       return create_neo_boolean(ctx, neo_value_get_data(left) ==
                                          neo_value_get_data(right));
+    default:
+      break;
     }
   }
 

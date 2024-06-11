@@ -1,7 +1,7 @@
 #include "atom.h"
+#include "common/include/cstring.h"
 #include "common/include/list.h"
 #include "common/include/map.h"
-#include "common/include/strings.h"
 #include "type.h"
 
 #include "scope.h"
@@ -16,7 +16,7 @@ struct _neo_scope {
   neo_map named;
 };
 
-int8_t neo_string_compare(const char *a, const char *b) {
+int8_t neo_string_compare(const cstring a, const cstring b) {
   return strcmp(a, b) == 0;
 }
 
@@ -69,13 +69,14 @@ neo_value neo_scope_clone_value(neo_scope self, neo_value value) {
   }
   return create_neo_value(self, atom);
 }
-void neo_scope_store_value(neo_scope self, const char *name, neo_value value) {
-  neo_map_set(self->named, strings_clone(name), value);
+void neo_scope_store_value(neo_scope self, const cstring name,
+                           neo_value value) {
+  neo_map_set(self->named, cstring_clone(name), value);
 }
-neo_value neo_scope_load_value(neo_scope self, const char *name) {
+neo_value neo_scope_load_value(neo_scope self, const cstring name) {
   return neo_map_get(self->named, (void *)name);
 }
-neo_value neo_scope_query_value(neo_scope self, const char *name) {
+neo_value neo_scope_query_value(neo_scope self, const cstring name) {
   neo_scope scope = self;
   neo_value val = neo_scope_load_value(scope, name);
   while (!val) {

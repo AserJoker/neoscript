@@ -1,6 +1,6 @@
 #include "type/string.h"
 #include "atom.h"
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
@@ -10,12 +10,12 @@
 #include <string.h>
 typedef struct _neo_string_impl *neo_string_impl;
 struct _neo_string_impl {
-  char *data;
+  cstring data;
 };
 static void neo_init_string(void *target, void *source, void *_) {
   neo_string_impl dst = (neo_string_impl)target;
   neo_string_impl src = (neo_string_impl)source;
-  dst->data = strings_clone(src->data);
+  dst->data = cstring_clone(src->data);
 }
 static void neo_dispose_string(void *target, void *_) {
   neo_string_impl dst = (neo_string_impl)target;
@@ -28,7 +28,7 @@ static int8_t neo_convert_string(void *data, uint32_t type, void *output,
     *(int8_t *)output = strlen(((neo_string_impl)data)->data) != 0;
     return 1;
   case NEO_TYPE_STRING: {
-    *(char **)output = strings_clone(((neo_string_impl)data)->data);
+    *(cstring *)output = cstring_clone(((neo_string_impl)data)->data);
     return 1;
   }
   }
@@ -41,22 +41,22 @@ void neo_string_init(neo_runtime runtime) {
       create_neo_type(NEO_TYPE_STRING, sizeof(struct _neo_string_impl), &hook);
   neo_runtime_define_type(runtime, neo_string);
 }
-const char *neo_value_get_string(neo_context ctx, neo_value value) {
+const cstring neo_value_get_string(neo_context ctx, neo_value value) {
   CHECK_TYPE(NEO_TYPE_STRING);
   return ((neo_string_impl)neo_value_get_data(value))->data;
 }
-void neo_value_set_string(neo_context ctx, neo_value value, const char *val) {
+void neo_value_set_string(neo_context ctx, neo_value value, const cstring val) {
   CHECK_TYPE(NEO_TYPE_STRING);
   neo_string_impl impl = (neo_string_impl)neo_value_get_data(value);
   if (impl->data != val) {
     free(impl->data);
-    impl->data = strings_clone(val);
+    impl->data = cstring_clone(val);
   }
 }
 
-neo_value create_neo_string(neo_context ctx, const char *val) {
+neo_value create_neo_string(neo_context ctx, const cstring val) {
   neo_type type =
       neo_runtime_get_type(neo_context_get_runtime(ctx), NEO_TYPE_STRING);
-  struct _neo_string_impl impl = {(char *)val};
+  struct _neo_string_impl impl = {(cstring)val};
   return neo_context_create_value(ctx, type, &impl);
 }

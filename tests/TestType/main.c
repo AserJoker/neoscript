@@ -1,5 +1,5 @@
 
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "engine/include/context.h"
 #include "engine/include/runtime.h"
 #include "engine/include/type.h"
@@ -7,13 +7,13 @@
 #include <stdlib.h>
 #define TEST_DEMO_TYPE 999
 typedef struct _test_demo_type_impl {
-  char *str;
+  cstring str;
 } *test_demo_type;
 int flag = 0;
 void neo_demo_type_init(void *target, void *source, void *arg) {
   test_demo_type dst = (test_demo_type)target;
   test_demo_type src = (test_demo_type)source;
-  dst->str = strings_clone(src->str);
+  dst->str = cstring_clone(src->str);
   flag = *(int *)arg;
 }
 void neo_demo_type_dispose(void *target, void *arg) {
@@ -25,7 +25,7 @@ neo_atom neo_demo_type_copy(neo_atom source, void *arg) {
   flag = *(int *)arg;
   return source;
 }
-int main(int argc, char *argv[]) {
+int main(int argc, cstring argv[]) {
   neo_runtime rt = create_neo_runtime();
   int flag_init = 1;
   int flag_dispose = 2;

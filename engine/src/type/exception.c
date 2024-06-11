@@ -1,6 +1,6 @@
 #include "atom.h"
+#include "common/include/cstring.h"
 #include "common/include/list.h"
-#include "common/include/strings.h"
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
@@ -10,7 +10,7 @@
 
 typedef struct _neo_exception_impl *neo_exception_impl;
 struct _neo_exception_impl {
-  char *message;
+  cstring message;
   neo_list stack;
   neo_atom caused;
 };
@@ -18,7 +18,7 @@ struct _neo_exception_impl {
 static void neo_init_exception(void *target, void *source, void *_) {
   neo_exception_impl dst = (neo_exception_impl)target;
   neo_exception_impl src = (neo_exception_impl)source;
-  dst->message = strings_clone(src->message);
+  dst->message = cstring_clone(src->message);
   dst->caused = src->caused;
   dst->stack = src->stack;
 }
@@ -27,29 +27,29 @@ static void neo_dispose_exception(void *target, void *_) {
   free_neo_list(dst->stack);
   free(dst->message);
 }
-static char *neo_exception_to_string(void *data) {
+static cstring neo_exception_to_string(void *data) {
   neo_exception_impl self = (neo_exception_impl)data;
-  const char *message = self->message;
+  const cstring message = self->message;
   neo_list result = create_neo_list(free);
   char line[1024];
   sprintf(line, "Error: %s", message);
-  neo_list_push(result, strings_clone(line));
+  neo_list_push(result, cstring_clone(line));
   neo_list stack = self->stack;
   neo_list_node node = neo_list_head(stack);
   while (node != neo_list_tail(stack)) {
-    char *frame = neo_list_node_get(node);
+    cstring frame = neo_list_node_get(node);
     if (frame) {
       sprintf(line, "\tat %s", frame);
-      neo_list_push(result, strings_clone(line));
+      neo_list_push(result, cstring_clone(line));
     }
     node = neo_list_node_next(node);
   }
   neo_exception_impl caused = neo_atom_get(self->caused);
   if (caused) {
-    char *caused_message = neo_exception_to_string(caused);
+    cstring caused_message = neo_exception_to_string(caused);
     neo_list_push(result, caused_message);
   }
-  char *result_str = strings_join(result, "\n");
+  cstring result_str = cstring_join(result, "\n");
   free_neo_list(result);
   return result_str;
 }
@@ -60,7 +60,7 @@ static int8_t neo_convert_exception(void *data, uint32_t type, void *output,
     *(int8_t *)output = 1;
     return 1;
   case NEO_TYPE_STRING:
-    *(char **)output = neo_exception_to_string(data);
+    *(cstring *)output = neo_exception_to_string(data);
     return 1;
   }
   return 0;
@@ -74,12 +74,12 @@ void neo_exception_init(neo_runtime runtime) {
   neo_runtime_define_type(runtime, neo_exception);
 }
 
-neo_value create_neo_exception(neo_context ctx, const char *message,
-                               neo_value caused, const char *filename, int line,
-                               int column) {
+neo_value create_neo_exception(neo_context ctx, const cstring message,
+                               neo_value caused, const cstring filename,
+                               int line, int column) {
 
   struct _neo_exception_impl impl = {
-      (char *)message, neo_context_trace(ctx, filename, line, column), NULL};
+      (cstring)message, neo_context_trace(ctx, filename, line, column), NULL};
   if (caused) {
     impl.caused = neo_value_get_atom(caused);
   }
@@ -97,7 +97,7 @@ neo_value create_neo_exception(neo_context ctx, const char *message,
   return exception;
 }
 
-const char *neo_exception_get_message(neo_value self) {
+const cstring neo_exception_get_message(neo_value self) {
   if (!self) {
     return "unknown error";
   }

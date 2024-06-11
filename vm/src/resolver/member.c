@@ -19,7 +19,7 @@ neo_value neo_resolver_member(neo_vm vm, neo_ast node) {
   neo_value left = neo_vm_eval(vm, node->left);
   neo_value right = neo_vm_eval(vm, node->right);
   if (neo_value_get_type_name(left) == NEO_TYPE_OBJECT) {
-    char *name = NULL;
+    cstring name = NULL;
     if (neo_value_convert(right, NEO_TYPE_STRING, &name)) {
       neo_value field = neo_object_get_field(ctx, left, name);
       free(name);

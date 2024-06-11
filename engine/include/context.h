@@ -21,14 +21,14 @@ neo_scope neo_context_get_scope(neo_context self);
 neo_value neo_context_get_null(neo_context self);
 
 neo_value neo_context_call(neo_context self, neo_value closure, int argc,
-                           neo_value *argv, const char *filename, int line,
+                           neo_value *argv, const cstring filename, int line,
                            int column);
 
 neo_value neo_context_get_closure(neo_context self);
 
 neo_value neo_context_create_value(neo_context self, neo_type type, void *init);
 
-neo_list neo_context_trace(neo_context self, const char *filename, int line,
+neo_list neo_context_trace(neo_context self, const cstring filename, int line,
                            int column);
 
 jmp_buf *neo_context_try_start(neo_context self);

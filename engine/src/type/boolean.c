@@ -1,5 +1,5 @@
 #include "type/boolean.h"
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
@@ -16,7 +16,7 @@ static int8_t neo_convert_boolean(void *data, uint32_t type, void *output,
     *(double *)output = *(int8_t *)data;
     return NEO_TRUE;
   case NEO_TYPE_STRING:
-    *(char **)output = strings_clone(*(int8_t *)data ? "true" : "false");
+    *(cstring *)output = cstring_clone(*(int8_t *)data ? "true" : "false");
     return NEO_TRUE;
   }
   return NEO_FALSE;

@@ -8,7 +8,7 @@ neo_value neo_demo_func(neo_context ctx, size_t argc, neo_value *argv) {
   is_called = 1;
   return neo_context_get_null(ctx);
 }
-int main(int argc, char *argv[]) {
+int main(int argc, cstring argv[]) {
   neo_runtime rt = create_neo_runtime();
   neo_context ctx = create_neo_context(rt);
   neo_value closure = create_neo_closure(ctx, neo_demo_func, "demo_func");

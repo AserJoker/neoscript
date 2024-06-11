@@ -1,5 +1,5 @@
 #include "type/number.h"
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
@@ -17,7 +17,7 @@ static int8_t neo_convert_number(void *data, uint32_t type, void *output,
   case NEO_TYPE_STRING: {
     char buf[64];
     sprintf(buf, "%g", *(double *)data);
-    *(char **)output = strings_clone(buf);
+    *(cstring *)output = cstring_clone(buf);
     return 1;
   }
   }

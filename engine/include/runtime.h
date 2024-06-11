@@ -17,8 +17,8 @@ void neo_runtime_define_type(neo_runtime self, neo_type type);
 neo_type neo_runtime_get_type(neo_runtime self, uint32_t name);
 #define CHECK_TYPE(TYPE)                                                       \
   do {                                                                         \
-    neo_value create_neo_exception(neo_context ctx, const char *message,       \
-                                   neo_value caused, const char *filename,     \
+    neo_value create_neo_exception(neo_context ctx, const cstring message,     \
+                                   neo_value caused, const cstring filename,   \
                                    int line, int column);                      \
     if (neo_value_get_type_name(value) != TYPE) {                              \
       char buf[1024] = {0};                                                    \

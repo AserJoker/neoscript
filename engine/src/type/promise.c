@@ -1,6 +1,6 @@
 #include "type/promise.h"
 #include "atom.h"
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "context.h"
 #include "runtime.h"
 #include "scope.h"
@@ -29,13 +29,13 @@ static int8_t neo_convert_promise(void *data, uint32_t type, void *output,
     neo_promise_impl impl = (neo_promise_impl)data;
     switch (impl->status) {
     case PROMISE_FULFILLED:
-      *(char **)output = strings_clone("[Promise fulfilled]");
+      *(cstring *)output = cstring_clone("[Promise fulfilled]");
       return 1;
     case PROMISE_PENDDING:
-      *(char **)output = strings_clone("[Promise pendding]");
+      *(cstring *)output = cstring_clone("[Promise pendding]");
       return 1;
     case PROMISE_REJECTED:
-      *(char **)output = strings_clone("[Promise rejected]");
+      *(cstring *)output = cstring_clone("[Promise rejected]");
       return 1;
     }
   }

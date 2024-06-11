@@ -27,9 +27,9 @@ neo_value neo_resolver_add(neo_vm vm, neo_ast node) {
     if (neo_value_convert(right, NEO_TYPE_NUMBER, &val)) {
       return create_neo_number(ctx, val);
     }
-    char *msg = NULL;
+    cstring msg = NULL;
     if (neo_value_convert(right, NEO_TYPE_STRING, &msg)) {
-      char *buf = malloc(strlen(msg) + 2);
+      cstring buf = malloc(strlen(msg) + 2);
       sprintf(buf, "+%s", msg);
       free(msg);
       neo_value result = create_neo_string(ctx, buf);
@@ -48,11 +48,11 @@ neo_value neo_resolver_add(neo_vm vm, neo_ast node) {
       neo_value_convert(right, NEO_TYPE_NUMBER, &right_val)) {
     return create_neo_number(ctx, left_val + right_val);
   }
-  char *left_str = NULL;
-  char *right_str = NULL;
+  cstring left_str = NULL;
+  cstring right_str = NULL;
   if (neo_value_convert(left, NEO_TYPE_STRING, &left_str) &&
       neo_value_convert(right, NEO_TYPE_STRING, &right_str)) {
-    char *buf = malloc(strlen(left_str) + strlen(right_str) + 1);
+    cstring buf = malloc(strlen(left_str) + strlen(right_str) + 1);
     sprintf(buf, "%s%s", left_str, right_str);
     free(left_str);
     free(right_str);

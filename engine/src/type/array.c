@@ -1,6 +1,6 @@
 #include "type/array.h"
 #include "atom.h"
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
@@ -29,7 +29,7 @@ static int8_t neo_convert_array(void *data, uint32_t type, void *output,
   case NEO_TYPE_STRING: {
     char buf[128];
     sprintf(buf, "[Array 0x%lx]", (ptrdiff_t)data);
-    *(char **)output = strings_clone(buf);
+    *(cstring *)output = cstring_clone(buf);
     return 1;
   }
   }

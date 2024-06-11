@@ -1,5 +1,5 @@
 #include "type/null.h"
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "context.h"
 #include "runtime.h"
 #include "type.h"
@@ -15,7 +15,7 @@ static int8_t neo_convert_null(void *data, uint32_t type, void *output,
     *(double *)output = 0;
     return 1;
   case NEO_TYPE_STRING:
-    *(char **)output = strings_clone("null");
+    *(cstring *)output = cstring_clone("null");
     return 1;
   }
   return 0;

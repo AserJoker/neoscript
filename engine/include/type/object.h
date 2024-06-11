@@ -3,6 +3,7 @@
 #include "common/include/list.h"
 #include "engine/include/runtime.h"
 #include "engine/include/type.h"
+#include "common/include/cstring.h"
 
 typedef struct _neo_attribute {
   int8_t readonly;
@@ -20,19 +21,19 @@ neo_value create_neo_object(neo_context ctx);
 neo_list neo_object_get_keys(neo_context ctx, neo_value value);
 
 neo_value neo_object_get_field(neo_context ctx, neo_value value,
-                               const char *name);
+                               const cstring name);
 
-void neo_object_set_field(neo_context ctx, neo_value value, const char *name,
+void neo_object_set_field(neo_context ctx, neo_value value, const cstring name,
                           neo_value field);
 
 void neo_object_delete_field(neo_context ctx, neo_value value,
-                             const char *name);
+                             const cstring name);
 
 void neo_object_set_attribute(neo_context ctx, neo_value value,
-                              const char *name, neo_attribute attr);
+                              const cstring name, neo_attribute attr);
 void neo_object_delete_attribute(neo_context ctx, neo_value value,
-                                 const char *name, neo_attribute attr);
+                                 const cstring name, neo_attribute attr);
 neo_attribute neo_object_get_attribute(neo_context ctx, neo_value value,
-                                       const char *name);
+                                       const cstring name);
 
 #endif

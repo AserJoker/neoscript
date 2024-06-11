@@ -1,7 +1,7 @@
 #include "context.h"
 #include "atom.h"
 #include "common/include/coroutine.h"
-#include "common/include/strings.h"
+#include "common/include/cstring.h"
 #include "runtime.h"
 #include "scope.h"
 #include "type.h"
@@ -19,14 +19,14 @@
 #include <string.h>
 void neo_context_default_error_callback(neo_context ctx, neo_value error,
                                         void *_) {
-  const char *message = neo_exception_get_message(error);
+  const cstring message = neo_exception_get_message(error);
   neo_list stack = neo_exception_get_stack(error);
   neo_value caused = neo_exception_get_caused(error, ctx);
   fprintf(stderr, "Error: %s", message);
   if (stack) {
     neo_list_node node = neo_list_head(stack);
     while (node != neo_list_tail(stack)) {
-      char *frame = (char *)neo_list_node_get(node);
+      cstring frame = (cstring)neo_list_node_get(node);
       if (frame) {
         fprintf(stderr, "\n\tat %s", frame);
       }
@@ -61,24 +61,24 @@ neo_try_block create_neo_try_block(neo_scope scope) {
 void free_neo_try_block(neo_try_block block) { free(block); }
 
 typedef struct _neo_call_frame *neo_call_frame;
-void neo_context_push_call_frame(neo_context self, const char *funcname,
-                                 const char *filename, int line, int column);
+void neo_context_push_call_frame(neo_context self, const cstring funcname,
+                                 const cstring filename, int line, int column);
 struct _neo_call_frame {
-  char *filename;
-  char *funcname;
+  cstring filename;
+  cstring funcname;
   int line;
   int column;
   neo_call_frame parent;
 };
 
-neo_call_frame create_neo_call_frame(const char *funcname) {
+neo_call_frame create_neo_call_frame(const cstring funcname) {
   neo_call_frame frame = (neo_call_frame)malloc(sizeof(struct _neo_call_frame));
   assert(frame != NULL);
-  char *func_name = (char *)funcname;
+  cstring func_name = (cstring)funcname;
   if (!func_name) {
     func_name = "[no name]";
   }
-  frame->funcname = strings_clone(funcname);
+  frame->funcname = cstring_clone(funcname);
   frame->filename = NULL;
   frame->line = 0;
   frame->column = 0;
@@ -97,16 +97,16 @@ void free_neo_call_frame(neo_call_frame frame) {
   }
   free(frame);
 }
-char *neo_call_frame_to_string(neo_call_frame frame) {
-  char *filename = frame->filename;
-  char *funcname = frame->funcname;
+cstring neo_call_frame_to_string(neo_call_frame frame) {
+  cstring filename = frame->filename;
+  cstring funcname = frame->funcname;
   if (!filename) {
     filename = "<internel>";
   }
   if (!funcname) {
     funcname = "[no name]";
   }
-  char *buf = (char *)malloc(strlen(filename) + strlen(funcname) + 128);
+  cstring buf = (cstring)malloc(strlen(filename) + strlen(funcname) + 128);
   if (frame->filename) {
     sprintf(buf, "%s(%s:%d:%d)", funcname, filename, frame->line,
             frame->column);
@@ -206,13 +206,13 @@ void free_neo_context(neo_context ctx) {
   free_neo_scope(ctx->global);
   free(ctx);
 }
-void neo_context_push_call_frame(neo_context self, const char *funcname,
-                                 const char *filename, int line, int column) {
+void neo_context_push_call_frame(neo_context self, const cstring funcname,
+                                 const cstring filename, int line, int column) {
   neo_call_frame frame = create_neo_call_frame(funcname);
   if (self->co_context->callstacks) {
     self->co_context->callstacks->column = column;
     self->co_context->callstacks->line = line;
-    self->co_context->callstacks->filename = strings_clone(filename);
+    self->co_context->callstacks->filename = cstring_clone(filename);
   }
   frame->parent = self->co_context->callstacks;
   self->co_context->callstacks = frame;
@@ -258,7 +258,7 @@ neo_value neo_context_create_value(neo_context self, neo_type type,
   return value;
 }
 neo_value neo_context_call(neo_context self, neo_value closure, int argc,
-                           neo_value *args, const char *filename, int line,
+                           neo_value *args, const cstring filename, int line,
                            int column) {
   neo_scope current = neo_context_get_scope(self);
 
@@ -280,7 +280,7 @@ neo_value neo_context_call(neo_context self, neo_value closure, int argc,
   neo_list keys = neo_closure_get_keys(self, closure);
   neo_list_node node = neo_list_head(keys);
   while (node != neo_list_tail(keys)) {
-    char *name = neo_list_node_get(node);
+    cstring name = neo_list_node_get(node);
     if (name) {
       neo_value val = neo_closure_get(self, closure, name);
       neo_scope_store_value(self->co_context->scope, name, val);
@@ -312,21 +312,20 @@ neo_value neo_context_call(neo_context self, neo_value closure, int argc,
 }
 neo_value neo_context_get_null(neo_context self) { return self->null; }
 
-
-neo_list neo_context_trace(neo_context self, const char *filename, int line,
+neo_list neo_context_trace(neo_context self, const cstring filename, int line,
                            int column) {
   neo_list trace = create_neo_list(free);
   neo_call_frame frame = self->co_context->callstacks;
   struct _neo_call_frame tmp;
   tmp.funcname = frame->funcname;
-  tmp.filename = (char *)filename;
+  tmp.filename = (cstring)filename;
   tmp.line = line;
   tmp.column = column;
-  char *buf = neo_call_frame_to_string(&tmp);
+  cstring buf = neo_call_frame_to_string(&tmp);
   neo_list_push(trace, buf);
   frame = frame->parent;
   while (frame) {
-    char *buf = neo_call_frame_to_string(frame);
+    cstring buf = neo_call_frame_to_string(frame);
     neo_list_push(trace, buf);
     frame = frame->parent;
   }
@@ -383,7 +382,7 @@ static void neo_co_schedule(neo_context ctx) {
   neo_list keys = neo_closure_get_keys(ctx, routine->func);
   neo_list_node node = neo_list_head(keys);
   while (node != neo_list_tail(keys)) {
-    char *name = neo_list_node_get(node);
+    cstring name = neo_list_node_get(node);
     if (name) {
       neo_value val = neo_closure_get(ctx, routine->func, name);
       neo_scope_store_value(ctx->co_context->scope, name, val);
