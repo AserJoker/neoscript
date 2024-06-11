@@ -3,7 +3,7 @@
 #include "common/include/list.h"
 #include "token.h"
 #include "tokendef.h"
-#include "vm/include/ast/ast.h"
+#include "ast.h"
 #include <stdio.h>
 #include <stdlib.h>
 struct _neo_compiler {

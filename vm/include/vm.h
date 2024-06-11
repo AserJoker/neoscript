@@ -1,6 +1,6 @@
 #ifndef __NEO_VM_VM__
 #define __NEO_VM_VM__
-#include "ast/ast.h"
+#include "compiler/include/ast.h"
 #include "engine/include/context.h"
 #include "engine/include/type.h"
 typedef struct _neo_vm *neo_vm;

@@ -1,4 +1,4 @@
-#include "ast/ast.h"
+#include "ast.h"
 #include "astdef.h"
 #include "common/include/cstring.h"
 #include <stdint.h>

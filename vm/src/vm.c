@@ -1,5 +1,5 @@
 #include "vm.h"
-#include "astdef.h"
+#include "compiler/include/astdef.h"
 #include "common/include/imap.h"
 #include "common/include/list.h"
 #include "engine/include/type/exception.h"
