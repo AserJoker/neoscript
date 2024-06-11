@@ -43,7 +43,7 @@ static cstring symbols[] = {
     "===", "!==", "<<=", ">>=", "==", "!=", "&&", "||", ">=", "<=", "+=", "-=",
     "*=",  "/=",  "%=",  "&=",  "|=", "^=", "++", "--", ">>", "<<", "=>", "+",
     "-",   "*",   "/",   "%",   "&",  "|",  "^",  "!",  "(",  ")",  "[",  "]",
-    "{",   "}",   ",",   ";",   "?",  ":",  ".",  ">",  "<",  "@",  "=",  0};
+    "{",   "}",   ",",   "?",   ";",  ":",  ".",  ">",  "<",  "@",  "=",  0};
 static void neo_tokenizer_skip_white_space(neo_tokenizer tokenizer) {
   for (;;) {
     if (*tokenizer->pos.position == ' ' || *tokenizer->pos.position == '\t') {
@@ -52,6 +52,12 @@ static void neo_tokenizer_skip_white_space(neo_tokenizer tokenizer) {
       continue;
     }
     if (*tokenizer->pos.position == '\n') {
+      neo_token token = create_neo_token();
+      token->pos = tokenizer->pos;
+      token->start = tokenizer->pos.position;
+      token->end = token->start + 1;
+      token->type = NEO_TOKEN_TYPE_END;
+      neo_list_push(tokenizer->tokens, token);
       tokenizer->pos.position++;
       tokenizer->pos.line++;
       tokenizer->pos.column = 0;
@@ -76,12 +82,10 @@ static int8_t neo_tokenizer_read_symbol(neo_tokenizer tokenizer) {
         tokenizer->pair--;
       }
       neo_token token = create_neo_token();
-      token->filename = tokenizer->pos.filename;
       token->start = tokenizer->pos.position;
       token->end = tokenizer->pos.position + strlen(symbols[index]);
       token->type = NEO_TOKEN_TYPE_SYMBOL;
-      token->line = tokenizer->pos.line;
-      token->column = tokenizer->pos.column;
+      token->pos = tokenizer->pos;
       tokenizer->pos.position = token->end;
       tokenizer->pos.column += token->end - token->start;
       neo_list_push(tokenizer->tokens, token);
@@ -96,9 +100,7 @@ static int8_t neo_tokenizer_read_number(neo_tokenizer tokenizer) {
     neo_token token = create_neo_token();
     token->start = tokenizer->pos.position;
     token->end = tokenizer->pos.position;
-    token->filename = tokenizer->pos.filename;
-    token->column = tokenizer->pos.column;
-    token->line = tokenizer->pos.line;
+    token->pos = tokenizer->pos;
     token->type = NEO_TOKEN_TYPE_NUMBER;
     token->end++;
     if (*token->end == 'x') {
@@ -147,9 +149,7 @@ static int8_t neo_tokenizer_read_number(neo_tokenizer tokenizer) {
     neo_token token = create_neo_token();
     token->start = tokenizer->pos.position;
     token->end = tokenizer->pos.position;
-    token->filename = tokenizer->pos.filename;
-    token->column = tokenizer->pos.column;
-    token->line = tokenizer->pos.line;
+    token->pos = tokenizer->pos;
     token->type = NEO_TOKEN_TYPE_NUMBER;
     token->end++;
     while ((*token->end >= '0' && *token->end <= '9')) {
@@ -168,9 +168,7 @@ static int8_t neo_tokenizer_read_comment(neo_tokenizer tokenizer) {
       neo_token token = create_neo_token();
       token->start = tokenizer->pos.position;
       token->end = tokenizer->pos.position;
-      token->filename = tokenizer->pos.filename;
-      token->column = tokenizer->pos.column;
-      token->line = tokenizer->pos.line;
+      token->pos = tokenizer->pos;
       token->type = NEO_TOKEN_TYPE_COMMENT;
       token->end++;
       while (*token->end && *token->end != '\n') {
@@ -184,9 +182,7 @@ static int8_t neo_tokenizer_read_comment(neo_tokenizer tokenizer) {
       neo_token token = create_neo_token();
       token->start = tokenizer->pos.position;
       token->end = tokenizer->pos.position;
-      token->filename = tokenizer->pos.filename;
-      token->column = tokenizer->pos.column;
-      token->line = tokenizer->pos.line;
+      token->pos = tokenizer->pos;
       token->type = NEO_TOKEN_TYPE_COMMENT;
       token->end++;
       for (;;) {
@@ -214,9 +210,7 @@ static int8_t neo_tokenizer_read_word(neo_tokenizer tokenizer) {
     neo_token token = create_neo_token();
     token->start = tokenizer->pos.position;
     token->end = tokenizer->pos.position;
-    token->filename = tokenizer->pos.filename;
-    token->column = tokenizer->pos.column;
-    token->line = tokenizer->pos.line;
+    token->pos = tokenizer->pos;
     token->type = NEO_TOKEN_TYPE_WORD;
     token->end++;
     while ((*token->end >= '0' && *token->end <= '9') ||
@@ -240,9 +234,7 @@ static int8_t neo_tokenizer_read_regex(neo_tokenizer tokenizer) {
     neo_token token = create_neo_token();
     token->start = tokenizer->pos.position;
     token->end = tokenizer->pos.position;
-    token->filename = tokenizer->pos.filename;
-    token->column = tokenizer->pos.column;
-    token->line = tokenizer->pos.line;
+    token->pos = tokenizer->pos;
     token->type = NEO_TOKEN_TYPE_REGEX;
     token->end++;
     while (*token->end != '/' && *(token->end - 1) != '\\') {
@@ -268,9 +260,7 @@ static int8_t neo_tokenizer_read_string(neo_tokenizer tokenizer) {
     neo_token token = create_neo_token();
     token->start = tokenizer->pos.position;
     token->end = tokenizer->pos.position;
-    token->filename = tokenizer->pos.filename;
-    token->column = tokenizer->pos.column;
-    token->line = tokenizer->pos.line;
+    token->pos = tokenizer->pos;
     token->type = NEO_TOKEN_TYPE_STRING;
     token->end++;
     for (;;) {
@@ -293,9 +283,7 @@ static int8_t neo_tokenizer_read_string(neo_tokenizer tokenizer) {
     neo_token token = create_neo_token();
     token->start = tokenizer->pos.position;
     token->end = tokenizer->pos.position;
-    token->filename = tokenizer->pos.filename;
-    token->column = tokenizer->pos.column;
-    token->line = tokenizer->pos.line;
+    token->pos = tokenizer->pos;
     token->end++;
     for (;;) {
       if (!*token->end) {
@@ -324,9 +312,7 @@ static int8_t neo_tokenizer_read_string(neo_tokenizer tokenizer) {
     neo_token token = create_neo_token();
     token->start = tokenizer->pos.position;
     token->end = tokenizer->pos.position;
-    token->filename = tokenizer->pos.filename;
-    token->column = tokenizer->pos.column;
-    token->line = tokenizer->pos.line;
+    token->pos = tokenizer->pos;
     token->end++;
     for (;;) {
       if (*token->end == '`' && *(token->end - 1) != '\\') {

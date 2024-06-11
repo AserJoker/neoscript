@@ -7,9 +7,7 @@
 struct _neo_token {
   const cstring start;
   const cstring end;
-  uint32_t line;
-  uint32_t column;
-  const cstring filename;
+  neo_position pos;
   uint32_t type;
 };
 typedef struct _neo_token *neo_token;

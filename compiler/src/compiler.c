@@ -1,9 +1,9 @@
 #include "compiler/include/compiler.h"
+#include "ast.h"
 #include "common/include/cstring.h"
 #include "common/include/list.h"
 #include "token.h"
 #include "tokendef.h"
-#include "ast.h"
 #include <stdio.h>
 #include <stdlib.h>
 struct _neo_compiler {
@@ -74,6 +74,9 @@ neo_ast neo_compiler_compile(neo_compiler compiler, const cstring source,
         break;
       case NEO_TOKEN_TYPE_REGEX:
         printf(" :regex");
+        break;
+      case NEO_TOKEN_TYPE_END:
+        printf(":end");
         break;
       default:
         break;
