@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 project(neo C)
 set(NEO_PROJECT_NAME ${PROJECT_NAME})
+set(NEO_OUTPUT_DIR ${PROJECT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 include_directories(.)
 add_subdirectory(./engine)
 add_subdirectory(./vm)

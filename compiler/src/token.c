@@ -42,10 +42,11 @@ void free_neo_tokenizer(neo_tokenizer tokenizer) {
   free(tokenizer);
 }
 static cstring symbols[] = {
-    "===", "!==", "<<=", ">>=", "==", "!=", "&&", "||", ">=", "<=", "+=", "-=",
-    "*=",  "/=",  "%=",  "&=",  "|=", "^=", "++", "--", ">>", "<<", "=>", "+",
-    "-",   "*",   "/",   "%",   "&",  "|",  "^",  "!",  "(",  ")",  "[",  "]",
-    "{",   "}",   ",",   "?",   ";",  ":",  ".",  ">",  "<",  "@",  "=",  0};
+    "===", "!==", "<<=", ">>=", ">>>", "==", "!=", "&&", "||", ">=",
+    "<=",  "+=",  "-=",  "*=",  "/=",  "%=", "&=", "|=", "^=", "++",
+    "--",  ">>",  "<<",  "=>",  "+",   "-",  "*",  "/",  "%",  "&",
+    "|",   "^",   "!",   "(",   ")",   "[",  "]",  "{",  "}",  ",",
+    "?",   ";",   ":",   ".",   ">",   "<",  "@",  "=",  0};
 static void neo_tokenizer_skip_white_space(neo_tokenizer tokenizer) {
   for (;;) {
     if (*tokenizer->pos.position == ' ' || *tokenizer->pos.position == '\t') {
@@ -127,14 +128,6 @@ static int8_t neo_tokenizer_read_number(neo_tokenizer tokenizer) {
       while ((*token->end >= '0' && *token->end <= '1')) {
         token->end++;
       }
-    } else if (*token->end == 'e') {
-      token->end++;
-      if (*token->end == '+') {
-        token->end++;
-      }
-      while (*token->end >= '0' && *token->end <= '9') {
-        token->end++;
-      }
     } else {
       int8_t flag = 0;
       for (;;) {
@@ -144,6 +137,15 @@ static int8_t neo_tokenizer_read_number(neo_tokenizer tokenizer) {
           break;
         }
         token->end++;
+      }
+      if (*token->end == 'e' || *token->end == 'E') {
+        token->end++;
+        if (*token->end == '+' || *token->end == '-') {
+          token->end++;
+        }
+        while (*token->end >= '0' && *token->end <= '9') {
+          token->end++;
+        }
       }
     }
     tokenizer->pos.position = token->end;
