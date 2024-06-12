@@ -14,6 +14,7 @@ struct _neo_tokenizer {
   neo_imap context;
   neo_list tokenizer_handlers;
   uint32_t pair;
+  int8_t value;
   char *error;
 };
 neo_token create_neo_token() {
@@ -28,6 +29,7 @@ neo_tokenizer create_neo_tokenizer() {
   tokenizer->context = create_neo_imap(free);
   tokenizer->tokenizer_handlers = create_neo_list(NULL);
   tokenizer->error = NULL;
+  tokenizer->value = 1;
   return tokenizer;
 }
 void free_neo_tokenizer(neo_tokenizer tokenizer) {
@@ -80,6 +82,10 @@ static int8_t neo_tokenizer_read_symbol(neo_tokenizer tokenizer) {
       }
       if (cstring_compare(symbols[index], "}")) {
         tokenizer->pair--;
+        tokenizer->value = 0;
+      }
+      if (*symbols[index] == ']' || *symbols[index] == ')') {
+        tokenizer->value = 0;
       }
       neo_token token = create_neo_token();
       token->start = tokenizer->pos.position;
@@ -89,6 +95,7 @@ static int8_t neo_tokenizer_read_symbol(neo_tokenizer tokenizer) {
       tokenizer->pos.position = token->end;
       tokenizer->pos.column += token->end - token->start;
       neo_list_push(tokenizer->tokens, token);
+      tokenizer->value = 1;
       return 1;
     }
     index++;
@@ -142,6 +149,7 @@ static int8_t neo_tokenizer_read_number(neo_tokenizer tokenizer) {
     tokenizer->pos.position = token->end;
     tokenizer->pos.column += token->end - token->start;
     neo_list_push(tokenizer->tokens, token);
+    tokenizer->value = 0;
     return 1;
   } else if (*tokenizer->pos.position == '.' &&
              (*(tokenizer->pos.position + 1) >= '0' &&
@@ -158,6 +166,7 @@ static int8_t neo_tokenizer_read_number(neo_tokenizer tokenizer) {
     tokenizer->pos.position = token->end;
     tokenizer->pos.column += token->end - token->start;
     neo_list_push(tokenizer->tokens, token);
+    tokenizer->value = 0;
     return 1;
   }
   return 0;
@@ -222,15 +231,15 @@ static int8_t neo_tokenizer_read_word(neo_tokenizer tokenizer) {
     tokenizer->pos.position = token->end;
     tokenizer->pos.column += token->end - token->start;
     neo_list_push(tokenizer->tokens, token);
+    tokenizer->value = 0;
     return 1;
   }
   return 0;
 }
 static int8_t neo_tokenizer_read_regex(neo_tokenizer tokenizer) {
-  if (*tokenizer->pos.position == '/' &&
+  if (tokenizer->value && *tokenizer->pos.position == '/' &&
       *(tokenizer->pos.position + 1) != '*' &&
       *(tokenizer->pos.position + 1) != '/') {
-
     neo_token token = create_neo_token();
     token->start = tokenizer->pos.position;
     token->end = tokenizer->pos.position;
@@ -250,6 +259,7 @@ static int8_t neo_tokenizer_read_regex(neo_tokenizer tokenizer) {
     tokenizer->pos.position = token->end;
     tokenizer->pos.column += token->end - token->start;
     neo_list_push(tokenizer->tokens, token);
+    tokenizer->value = 0;
     return 1;
   }
   return 0;
@@ -278,6 +288,7 @@ static int8_t neo_tokenizer_read_string(neo_tokenizer tokenizer) {
     tokenizer->pos.position = token->end;
     tokenizer->pos.column += token->end - token->start;
     neo_list_push(tokenizer->tokens, token);
+    tokenizer->value = 0;
     return 1;
   } else if (*tokenizer->pos.position == '`') {
     neo_token token = create_neo_token();
@@ -292,6 +303,7 @@ static int8_t neo_tokenizer_read_string(neo_tokenizer tokenizer) {
       if (*token->end == '`' && *(token->end - 1) != '\\') {
         token->end++;
         token->type = NEO_TOKEN_TYPE_TEMPLATE_STRING;
+        tokenizer->value = 0;
         break;
       }
       if (*token->end == '{' && *(token->end - 1) == '$' &&
@@ -299,6 +311,7 @@ static int8_t neo_tokenizer_read_string(neo_tokenizer tokenizer) {
         token->type = NEO_TOKEN_TYPE_TEMPLATE_STRING_START;
         part_string_count++;
         token->end++;
+        tokenizer->value = 1;
         break;
       }
       token->end++;
@@ -318,6 +331,7 @@ static int8_t neo_tokenizer_read_string(neo_tokenizer tokenizer) {
       if (*token->end == '`' && *(token->end - 1) != '\\') {
         token->end++;
         token->type = NEO_TOKEN_TYPE_TEMPLATE_STRING_END;
+        tokenizer->value = 0;
         break;
       }
       if (*token->end == '{' && *(token->end - 1) == '$' &&
@@ -325,6 +339,7 @@ static int8_t neo_tokenizer_read_string(neo_tokenizer tokenizer) {
         token->type = NEO_TOKEN_TYPE_TEMPLATE_STRING_PART;
         part_string_count++;
         token->end++;
+        tokenizer->value = 1;
         break;
       }
       token->end++;
