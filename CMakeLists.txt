@@ -9,8 +9,8 @@ add_subdirectory(./vm)
 add_subdirectory(./common)
 add_subdirectory(./compiler)
 
-add_executable(${NEO_PROJECT_NAME} ./main.c)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${NEO_PROJECT_NAME}-compiler ${NEO_PROJECT_NAME}-engine ${NEO_PROJECT_NAME}-vm ${NEO_PROJECT_NAME}-common)
+add_executable(Demo${NEO_PROJECT_NAME} ./main.c)
+target_link_libraries(Demo${PROJECT_NAME} PRIVATE ${NEO_PROJECT_NAME}-compiler ${NEO_PROJECT_NAME}-engine ${NEO_PROJECT_NAME}-vm ${NEO_PROJECT_NAME}-common)
 
 enable_testing()
 add_subdirectory(./tests)

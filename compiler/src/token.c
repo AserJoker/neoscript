@@ -387,8 +387,8 @@ static int8_t neo_tokenizer_read_token(neo_tokenizer tokenizer) {
 int8_t neo_tokenizer_parse(neo_tokenizer tokenizer, const cstring source,
                            const cstring filename) {
   tokenizer->pos.filename = filename;
-  tokenizer->pos.column = 0;
-  tokenizer->pos.line = 0;
+  tokenizer->pos.column = 1;
+  tokenizer->pos.line = 1;
   tokenizer->pos.source = source;
   tokenizer->pos.position = tokenizer->pos.source;
   while (*tokenizer->pos.position) {

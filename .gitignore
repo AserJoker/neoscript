@@ -3,3 +3,5 @@ build
 compile_commands.json
 neovim.json
 neo
+Test*
+Demo*
