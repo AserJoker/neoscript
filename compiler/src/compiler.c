@@ -5,6 +5,7 @@
 #include "common/include/list.h"
 #include "token.h"
 #include "tokendef.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,6 +55,19 @@ static int8_t neo_compiler_expression_append(neo_ast *root, neo_ast node) {
     } else {
       node->left = *root;
       *root = node;
+    }
+    return 1;
+  } else if (node->type == NEO_AST_TYPE_CALL) {
+    neo_ast tmp = *root;
+    if (tmp->level == -1) {
+      node->left = tmp;
+      *root = node;
+    } else {
+      while (tmp->right->level != -1) {
+        tmp = tmp->right;
+      }
+      node->left = tmp->right;
+      tmp->right = node;
     }
     return 1;
   } else {
@@ -152,6 +166,7 @@ static neo_ast neo_compiler_read_brackets(neo_compiler compiler) {
     pair = neo_list_node_next(pair);
   }
   if (pair == neo_list_tail(compiler->tokens)) {
+    token = neo_list_node_get(current);
     char buf[1024];
     sprintf(buf, "')' expected. at\n\t%s:%d:%d", token->pos.filename,
             token->pos.line, token->pos.column);
@@ -175,6 +190,7 @@ static neo_ast neo_compiler_read_brackets(neo_compiler compiler) {
   }
   token = neo_list_node_get(compiler->position);
   if (!token || *token->start != ')') {
+    token = neo_list_node_get(current);
     char buf[1024];
     sprintf(buf, "unexpect token. at\n\t%s:%d:%d", token->pos.filename,
             token->pos.line, token->pos.column);
@@ -194,6 +210,60 @@ static neo_ast neo_compiler_read_symbol(neo_compiler compiler) {
   strncpy(buf, token->start, token->end - token->start);
   neo_ast node = create_neo_ast(NEO_AST_TYPE_EXPRESSION, token, NULL, NULL);
   compiler->position = neo_list_node_next(compiler->position);
+  return node;
+}
+static neo_ast neo_compiler_read_function_call(neo_compiler compiler) {
+  neo_list_node current = compiler->position;
+  compiler->position = neo_list_node_next(compiler->position);
+  neo_ast node = create_neo_ast(NEO_AST_TYPE_CALL, 0, 0, NULL);
+  neo_ast arg = NULL;
+  neo_ast args = node;
+  neo_token token = neo_list_node_get(compiler->position);
+  if (!token) {
+    token = neo_list_node_get(current);
+    char buf[1024];
+    sprintf(buf, "unexpect ')'. at\n\t%s:%d:%d", token->pos.filename,
+            token->pos.line, token->pos.column);
+    compiler->error = cstring_clone(buf);
+    free_neo_ast(node);
+    compiler->position = current;
+    return NULL;
+  }
+  if (*token->start != ')') {
+    for (;;) {
+      int8_t is_inline = compiler->is_inline;
+      compiler->is_inline = 1;
+      arg = neo_compiler_read_expression(compiler);
+      compiler->is_inline = is_inline;
+      if (!arg) {
+        free_neo_ast(node);
+        compiler->position = current;
+        return NULL;
+      }
+      token = neo_list_node_get(compiler->position);
+      if (token && *token->start == ',') {
+        neo_ast next = create_neo_ast(NEO_AST_TYPE_ARG, 0, arg, 0);
+        args->right = next;
+        args = next;
+        compiler->position = neo_list_node_next(compiler->position);
+      } else if (token && *token->start == ')') {
+        args->right = arg;
+        break;
+      } else {
+        token = neo_list_node_get(current);
+        char buf[1024];
+        sprintf(buf, "unexpect ')'. at\n\t%s:%d:%d", token->pos.filename,
+                token->pos.line, token->pos.column);
+        compiler->error = cstring_clone(buf);
+        free_neo_ast(node);
+        compiler->position = current;
+        return NULL;
+      }
+    }
+  }
+  compiler->position = neo_list_node_next(compiler->position);
+
+  node->level = -1;
   return node;
 }
 static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
@@ -260,8 +330,6 @@ static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
             return root;
           }
         }
-        // TODO: function call
-        // TODO: array_member
         node = neo_compiler_read_word(compiler);
       }
       break;
@@ -272,15 +340,21 @@ static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
       } else if (*token->start == '[') {
         // TODO: array def
       } else if (*token->start == '(') {
-        node = neo_compiler_read_brackets(compiler);
+        if (is_completed) {
+          node = neo_compiler_read_function_call(compiler);
+        } else {
+          node = neo_compiler_read_brackets(compiler);
+        }
       } else if (*token->start == '.') {
         // TODO: member
+        // TODO: array_member
       } else if (*token->start == '@') {
         // TODO: decorator& function def|class def
       } else if (*token->start == '?') {
         // TODO: triple
+        // TODO: maybe
       } else {
-        if (*token->end == ',' && compiler->is_inline) {
+        if (*token->start == ',' && compiler->is_inline) {
           return root;
         }
         int level = 0;
@@ -307,7 +381,7 @@ static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
             return root;
           }
         }
-          node = neo_compiler_read_symbol(compiler);
+        node = neo_compiler_read_symbol(compiler);
         node->level = level;
       }
       break;

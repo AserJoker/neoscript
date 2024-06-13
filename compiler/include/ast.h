@@ -1,5 +1,6 @@
 #ifndef __NEO_VM_AST__
 #define __NEO_VM_AST__
+#include "astdef.h"
 #include "common/include/cstring.h"
 #include "token.h"
 #include <stdint.h>
@@ -10,7 +11,7 @@ typedef struct neo_ast_position {
 } neo_ast_position;
 typedef struct _neo_ast *neo_ast;
 struct _neo_ast {
-  uint32_t type;
+  enum NEO_AST_TYPE type;
   neo_ast_position start;
   neo_ast_position end;
   int32_t level;

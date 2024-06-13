@@ -9,6 +9,9 @@ void print_ast(neo_ast ast) {
   printf("{");
   printf("\"type\":");
   switch ((enum NEO_AST_TYPE)ast->type) {
+  case NEO_AST_TYPE_ARG:
+    printf("\"NEO_AST_TYPE_ARG\"");
+    break;
   case NEO_AST_TYPE_NULL:
     printf("\"NEO_AST_TYPE_NULL\"");
     break;
@@ -57,14 +60,6 @@ void print_ast(neo_ast ast) {
     strncpy(buf, ast->operator->start,
             ast->operator->end - ast->operator->start);
     printf("\"%s\"", buf);
-    if (ast->left) {
-      printf(",\"left\":");
-      print_ast(ast->left);
-    }
-    if (ast->right) {
-      printf(",\"right\":");
-      print_ast(ast->right);
-    }
     break;
   }
   case NEO_AST_TYPE_MEMBER:
@@ -75,25 +70,9 @@ void print_ast(neo_ast ast) {
     break;
   case NEO_AST_TYPE_PROGRAM:
     printf("\"NEO_AST_TYPE_PROGRAM\"");
-    if (ast->left) {
-      printf(",\"left\":");
-      print_ast(ast->left);
-    }
-    if (ast->right) {
-      printf(",\"right\":");
-      print_ast(ast->right);
-    }
     break;
   case NEO_AST_TYPE_STATEMENTS:
     printf("\"NEO_AST_TYPE_STATEMENTS\"");
-    if (ast->left) {
-      printf(",\"left\":");
-      print_ast(ast->left);
-    }
-    if (ast->right) {
-      printf(",\"right\":");
-      print_ast(ast->right);
-    }
     break;
   case NEO_AST_TYPE_VAR:
     printf("\"NEO_AST_TYPE_VAR\"");
@@ -112,17 +91,17 @@ void print_ast(neo_ast ast) {
     break;
   case NEO_AST_TYPE_BRACKETS:
     printf("\"NEO_AST_TYPE_BRACKETS\"");
-    if (ast->left) {
-      printf(",\"left\":");
-      print_ast(ast->left);
-    }
-    if (ast->right) {
-      printf(",\"right\":");
-      print_ast(ast->right);
-    }
     break;
   case NEO_AST_TYPE_MAX:
     break;
+  }
+  if (ast->left) {
+    printf(",\"left\":");
+    print_ast(ast->left);
+  }
+  if (ast->right) {
+    printf(",\"right\":");
+    print_ast(ast->right);
   }
   printf(",\"level\":%d", ast->level);
   printf("}");
