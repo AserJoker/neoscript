@@ -110,6 +110,17 @@ void print_ast(neo_ast ast) {
   case NEO_AST_TYPE_WHILE_STATEMENT:
     printf("\"NEO_AST_TYPE_WHILE_STATEMENT\"");
     break;
+  case NEO_AST_TYPE_BRACKETS:
+    printf("\"NEO_AST_TYPE_BRACKETS\"");
+    if (ast->left) {
+      printf(",\"left\":");
+      print_ast(ast->left);
+    }
+    if (ast->right) {
+      printf(",\"right\":");
+      print_ast(ast->right);
+    }
+    break;
   case NEO_AST_TYPE_MAX:
     break;
   }

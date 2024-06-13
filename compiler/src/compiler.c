@@ -163,7 +163,34 @@ static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
       } else if (*token->start == '[') {
         // TODO: array def|member
       } else if (*token->start == '(') {
-        // TODO: lambda def or bracket
+        neo_list_node pair = neo_list_node_next(compiler->position);
+        while (pair != neo_list_tail(compiler->tokens)) {
+          neo_token token = neo_list_node_get(pair);
+          if (token->type == NEO_TOKEN_TYPE_SYMBOL && *token->start == ')') {
+            break;
+          }
+          pair = neo_list_node_next(pair);
+        }
+        if (pair == neo_list_tail(compiler->tokens)) {
+          return NULL;
+        }
+        neo_list_node next = neo_list_node_next(pair);
+        neo_token next_token = neo_list_node_get(next);
+        if (next_token->type == NEO_TOKEN_TYPE_SYMBOL &&
+            strncmp(next_token->start, "=>", 2) == 0) {
+          // TODO: lambda
+        }
+        compiler->position = neo_list_node_next(compiler->position);
+        neo_ast content = neo_compiler_read_expression(compiler);
+        token = neo_list_node_get(compiler->position);
+        if (!content || !token || *token->start != ')') {
+          free_neo_ast(content);
+          return NULL;
+        }
+        node = create_neo_ast(NEO_AST_TYPE_BRACKETS, 0, content, 0);
+        node->level = -1;
+        compiler->position = neo_list_node_next(compiler->position);
+        is_value = 0;
       } else if (*token->start == '.') {
         // TODO: member
       } else if (*token->start == '@') {
