@@ -76,8 +76,9 @@ static void neo_tokenizer_skip_white_space(neo_tokenizer tokenizer) {
 static int8_t neo_tokenizer_read_symbol(neo_tokenizer tokenizer) {
   uint32_t index = 0;
   while (symbols[index] != 0) {
+    int32_t len = strlen(symbols[index]);
     if (strncmp(tokenizer->pos.position, symbols[index],
-                strlen(symbols[index])) == 0) {
+                len )== 0) {
       if (cstring_compare(symbols[index], "{")) {
         tokenizer->pair++;
       }
