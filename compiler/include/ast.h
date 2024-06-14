@@ -12,8 +12,6 @@ typedef struct neo_ast_position {
 typedef struct _neo_ast *neo_ast;
 struct _neo_ast {
   enum NEO_AST_TYPE type;
-  neo_ast_position start;
-  neo_ast_position end;
   int32_t level;
   union {
     cstring s_data;

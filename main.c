@@ -9,8 +9,26 @@ void print_ast(neo_ast ast) {
   printf("{");
   printf("\"type\":");
   switch ((enum NEO_AST_TYPE)ast->type) {
-  case NEO_AST_TYPE_ARG:
-    printf("\"NEO_AST_TYPE_ARG\"");
+  case NEO_AST_TYPE_GENERATOR_FUNCTION:
+    printf("\"NEO_AST_TYPE_GENERATOR_FUNCTION\"");
+    break;
+  case NEO_AST_TYPE_ASYNC_FUNCTION:
+    printf("\"NEO_AST_TYPE_ASYNC_FUNCTION\"");
+    break;
+  case NEO_AST_TYPE_ASYNC_LAMBDA:
+    printf("\"NEO_AST_TYPE_ASYNC_LAMBDA\"");
+    break;
+  case NEO_AST_TYPE_BLOCK_STATEMENT:
+    printf("\"NEO_AST_TYPE_BLOCK_STATEMENT\"");
+    break;
+  case NEO_AST_TYPE_FUNCTION_META:
+    printf("\"NEO_AST_TYPE_FUNCTION_META\"");
+    break;
+  case NEO_AST_TYPE_ARG_DEF:
+    printf("\"NEO_AST_TYPE_ARG_DEF\"");
+    break;
+  case NEO_AST_TYPE_LIST:
+    printf("\"NEO_AST_TYPE_LIST\"");
     break;
   case NEO_AST_TYPE_NULL:
     printf("\"NEO_AST_TYPE_NULL\"");
