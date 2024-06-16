@@ -27,10 +27,10 @@ void free_neo_ast(neo_ast ast) {
     break;
   default:
     if (ast->left) {
-      free(ast->left);
+      free_neo_ast(ast->left);
     }
     if (ast->right) {
-      free(ast->right);
+      free_neo_ast(ast->right);
     }
     break;
   }
