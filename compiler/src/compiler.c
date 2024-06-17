@@ -346,6 +346,13 @@ static neo_ast neo_compiler_read_new(neo_compiler compiler) {
   compiler->position = neo_list_node_next(compiler->position);
   return node;
 }
+static neo_ast neo_compiler_read_await(neo_compiler compiler) {
+  neo_token token = neo_list_node_get(compiler->position);
+  neo_ast node = create_neo_ast(NEO_AST_TYPE_EXPRESSION, token, 0, 0);
+  node->level = 0;
+  compiler->position = neo_list_node_next(compiler->position);
+  return node;
+}
 static neo_ast neo_compiler_read_delete(neo_compiler compiler) {
   neo_token token = neo_list_node_get(compiler->position);
   neo_ast node = create_neo_ast(NEO_AST_TYPE_EXPRESSION, token, 0, 0);
@@ -543,6 +550,29 @@ static neo_ast neo_compiler_read_lambda(neo_compiler compiler) {
   node->right = body;
   return node;
 }
+static neo_ast neo_compiler_read_async(neo_compiler compiler) {
+  compiler->position = neo_list_node_next(compiler->position);
+  neo_token token = neo_list_node_get(compiler->position);
+  if (neo_token_is(token, "function")) {
+    neo_ast func = neo_compiler_read_function_def(compiler);
+    if (!func) {
+      return NULL;
+    }
+    if (func->type == NEO_AST_TYPE_FUNCTION) {
+      func->type = NEO_AST_TYPE_ASYNC_FUNCTION;
+    } else {
+      func->type = NEO_AST_TYPE_ASYNC_GENERATOR_FUNCTION;
+    }
+    return func;
+  } else {
+    neo_ast func = neo_compiler_read_lambda(compiler);
+    if (!func) {
+      return NULL;
+    }
+    func->type = NEO_AST_TYPE_ASYNC_LAMBDA;
+    return func;
+  }
+}
 static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
   neo_ast root = NULL;
   int8_t is_completed = 0;
@@ -592,9 +622,9 @@ static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
       } else if (neo_token_is(token, "delete")) {
         node = neo_compiler_read_delete(compiler);
       } else if (neo_token_is(token, "async")) {
-        // TODO: async def
+        node = neo_compiler_read_async(compiler);
       } else if (neo_token_is(token, "await")) {
-        // TODO: await def
+        node = neo_compiler_read_await(compiler);
       } else {
         return root;
       }
@@ -631,6 +661,7 @@ static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
       } else if (*token->start == '?') {
         // TODO: triple
         // TODO: optional
+        
       } else {
         if (*token->start == ',' && compiler->is_inline) {
           return root;
