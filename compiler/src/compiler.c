@@ -63,7 +63,8 @@ static int8_t neo_compiler_expression_append(neo_ast *root, neo_ast node) {
     return 1;
   } else if (node->type == NEO_AST_TYPE_CALL ||
              node->type == NEO_AST_TYPE_MEMBER ||
-             node->type == NEO_AST_TYPE_OPTIONAL_CALL) {
+             node->type == NEO_AST_TYPE_OPTIONAL_CALL ||
+             node->type == NEO_AST_TYPE_OPTIONAL_MEMBER) {
     neo_ast tmp = *root;
     if (tmp->level == -1) {
       node->left = tmp;
