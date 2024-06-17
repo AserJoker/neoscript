@@ -9,6 +9,12 @@ void print_ast(neo_ast ast) {
   printf("{");
   printf("\"type\":");
   switch ((enum NEO_AST_TYPE)ast->type) {
+  case NEO_AST_TYPE_OPTIONAL_MEMBER:
+    printf("\"NEO_AST_TYPE_OPTIONAL_MEMBER\"");
+    break;
+  case NEO_AST_TYPE_OPTIONAL_CALL:
+    printf("\"NEO_AST_TYPE_OPTIONAL_CALL\"");
+    break;
   case NEO_AST_TYPE_TERNARY:
     printf("\"NEO_AST_TYPE_TERNARY\"");
     break;

@@ -73,7 +73,7 @@ static void neo_tokenizer_skip_white_space(neo_tokenizer tokenizer) {
       neo_list_push(tokenizer->tokens, token);
       tokenizer->pos.position++;
       tokenizer->pos.line++;
-      tokenizer->pos.column = 0;
+      tokenizer->pos.column = 1;
       continue;
     }
     if (*tokenizer->pos.position == '\r') {
