@@ -47,6 +47,16 @@ static cstring symbols[] = {
     "--",  ">>",  "<<",  "=>",  "+",   "-",  "*",  "/",  "%",  "&",
     "|",   "^",   "!",   "(",   ")",   "[",  "]",  "{",  "}",  ",",
     "?",   ";",   ":",   ".",   ">",   "<",  "@",  "=",  0};
+static cstring keywords[] = {
+    "async",   "await",  "assert",    "break",    "case",
+    "catch",   "class",  "const",     "continue", "debugger",
+    "default", "delete", "do",        "else",     "export",
+    "extends", "false",  "finally",   "for",      "function",
+    "from",    "if",     "import",    "in",       "instanceof",
+    "let",     "null",   "new",       "return",   "super",
+    "switch",  "static", "this",      "throw",    "try",
+    "true",    "typeof", "undefined", "var",      "void",
+    "while",   "with",   "yield",     0};
 static void neo_tokenizer_skip_white_space(neo_tokenizer tokenizer) {
   for (;;) {
     if (*tokenizer->pos.position == ' ' || *tokenizer->pos.position == '\t') {
@@ -77,8 +87,7 @@ static int8_t neo_tokenizer_read_symbol(neo_tokenizer tokenizer) {
   uint32_t index = 0;
   while (symbols[index] != 0) {
     int32_t len = strlen(symbols[index]);
-    if (strncmp(tokenizer->pos.position, symbols[index],
-                len )== 0) {
+    if (strncmp(tokenizer->pos.position, symbols[index], len) == 0) {
       if (cstring_compare(symbols[index], "{")) {
         tokenizer->pair++;
       }
@@ -235,6 +244,13 @@ static int8_t neo_tokenizer_read_word(neo_tokenizer tokenizer) {
     tokenizer->pos.column += token->end - token->start;
     neo_list_push(tokenizer->tokens, token);
     tokenizer->value = 0;
+    for (int32_t index = 0; keywords[index] != 0; index++) {
+      uint32_t len = strlen(keywords[index]);
+      if (strncmp(keywords[index], token->start, len) == 0 &&
+          token->end - token->start == len) {
+        token->type = NEO_TOKEN_TYPE_KEYWORD;
+      }
+    }
     return 1;
   }
   return 0;
@@ -405,6 +421,12 @@ int8_t neo_tokenizer_parse(neo_tokenizer tokenizer, const cstring source,
       return 0;
     }
   }
+  neo_token token = create_neo_token();
+  token->type = NEO_TOKEN_TYPE_EOF;
+  token->start = tokenizer->pos.position;
+  token->end = token->start + 1;
+  token->pos = tokenizer->pos;
+  neo_list_push(tokenizer->tokens, token);
   return 1;
 }
 neo_list neo_tokenizer_get_token_list(neo_tokenizer tokenizer) {

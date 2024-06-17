@@ -4,6 +4,7 @@
 #include "common/include/list.h"
 #include "position.h"
 #include <stdint.h>
+#include <string.h>
 struct _neo_token {
   const cstring start;
   const cstring end;
@@ -27,4 +28,8 @@ void neo_tokenizer_set_context(neo_tokenizer tokenizer, int32_t key,
 int32_t neo_tokenizer_get_context(neo_tokenizer tokenizer, int32_t key);
 void neo_tokenizer_add_tokenizer_fn(neo_tokenizer tokenizer,
                                     neo_tokenizer_fn fn);
+static inline int8_t neo_token_is(neo_token token, const char *str) {
+  return strncmp(token->start, str, token->end - token->start) == 0 &&
+         *(str + (token->end - token->start)) == 0;
+}
 #endif
