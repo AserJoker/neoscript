@@ -75,6 +75,19 @@ static int8_t neo_compiler_expression_append(neo_ast *root, neo_ast node) {
       tmp->right = node;
     }
     return 1;
+  } else if (node->type == NEO_AST_TYPE_TERNARY) {
+    neo_ast tmp = *root;
+    if (tmp->level < 9) {
+      node->left = tmp;
+      *root = node;
+    } else {
+      while (tmp->right->level >= 9) {
+        tmp = tmp->right;
+      }
+      node->left = tmp->right;
+      tmp->right = node;
+    }
+    return 1;
   } else {
     neo_ast tmp = *root;
     while (tmp->right) {
@@ -573,6 +586,37 @@ static neo_ast neo_compiler_read_async(neo_compiler compiler) {
     return func;
   }
 }
+static neo_ast neo_compiler_read_ternary(neo_compiler compiler) {
+  compiler->position = neo_list_node_next(compiler->position);
+  int8_t is_inline = compiler->is_inline;
+  compiler->is_inline = 1;
+  neo_ast truth = neo_compiler_read_expression(compiler);
+  if (!truth) {
+    return NULL;
+  }
+  compiler->is_inline = 1;
+  neo_token token = neo_list_node_get(compiler->position);
+  if (*token->start != ':') {
+    char buf[1024];
+    sprintf(buf, "':' expected. at\n\t%s:%d:%d", token->pos.filename,
+            token->pos.line, token->pos.column);
+    compiler->error = cstring_clone(buf);
+    free_neo_ast(truth);
+    return NULL;
+  }
+  compiler->position = neo_list_node_next(compiler->position);
+  neo_ast falsy = neo_compiler_read_expression(compiler);
+  if (!falsy) {
+    free_neo_ast(truth);
+    return NULL;
+  }
+  compiler->is_inline = is_inline;
+  neo_ast node = create_neo_ast(NEO_AST_TYPE_TERNARY, 0, 0, 0);
+  neo_ast body = create_neo_ast(NEO_AST_TYPE_TERNARY_BODY, 0, truth, falsy);
+  node->right = body;
+  node->level = -1;
+  return node;
+}
 static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
   neo_ast root = NULL;
   int8_t is_completed = 0;
@@ -659,9 +703,10 @@ static neo_ast neo_compiler_read_expression(neo_compiler compiler) {
       } else if (*token->start == '@') {
         // TODO: decorator& function def|class def
       } else if (*token->start == '?') {
-        // TODO: triple
+
         // TODO: optional
-        
+        node = neo_compiler_read_ternary(compiler);
+
       } else {
         if (*token->start == ',' && compiler->is_inline) {
           return root;

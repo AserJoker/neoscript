@@ -9,6 +9,12 @@ void print_ast(neo_ast ast) {
   printf("{");
   printf("\"type\":");
   switch ((enum NEO_AST_TYPE)ast->type) {
+  case NEO_AST_TYPE_TERNARY:
+    printf("\"NEO_AST_TYPE_TERNARY\"");
+    break;
+  case NEO_AST_TYPE_TERNARY_BODY:
+    printf("\"NEO_AST_TYPE_TERNARY_BODY\"");
+    break;
   case NEO_AST_TYPE_ASYNC_GENERATOR_FUNCTION:
     printf("\"NEO_AST_TYPE_ASYNC_GENERATOR_FUNCTION\"");
     break;
