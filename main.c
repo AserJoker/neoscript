@@ -9,6 +9,32 @@ void print_ast(neo_ast ast) {
   printf("{");
   printf("\"type\":");
   switch ((enum NEO_AST_TYPE)ast->type) {
+  case NEO_AST_TYPE_UNKNOWN:
+    break;
+  case NEO_AST_TYPE_THIS:
+    printf("\"NEO_AST_TYPE_THIS\"");
+    break;
+  case NEO_AST_TYPE_OBJECT_DESTRUCT_FIELD:
+    printf("\"NEO_AST_TYPE_OBJECT_DESTRUCT_FIELD\"");
+    break;
+  case NEO_AST_TYPE_ARRAY_DESTRUCT:
+    printf("\"NEO_AST_TYPE_ARRAY_DESTRUCT\"");
+    break;
+  case NEO_AST_TYPE_OBJECT_DESTRUCT:
+    printf("\"NEO_AST_TYPE_OBJECT_DESTRUCT\"");
+    break;
+  case NEO_AST_TYPE_OBJECT_FIELD:
+    printf("\"NEO_AST_TYPE_OBJECT_FIELD\"");
+    break;
+  case NEO_AST_TYPE_OBJECT_FUNCTION:
+    printf("\"NEO_AST_TYPE_OBJECT_FUNCTION\"");
+    break;
+  case NEO_AST_TYPE_OBJECT_GET:
+    printf("\"NEO_AST_TYPE_OBJECT_GET\"");
+    break;
+  case NEO_AST_TYPE_OBJECT_SET:
+    printf("\"NEO_AST_TYPE_OBJECT_SET\"");
+    break;
   case NEO_AST_TYPE_OPTIONAL_MEMBER:
     printf("\"NEO_AST_TYPE_OPTIONAL_MEMBER\"");
     break;
@@ -88,11 +114,6 @@ void print_ast(neo_ast ast) {
     break;
   case NEO_AST_TYPE_EXPRESSION: {
     printf("\"NEO_AST_TYPE_BINARY\"");
-    printf(",\"operator\":");
-    char buf[8] = {0};
-    strncpy(buf, ast->operator->start,
-            ast->operator->end - ast->operator->start);
-    printf("\"%s\"", buf);
     break;
   }
   case NEO_AST_TYPE_MEMBER:
@@ -127,6 +148,13 @@ void print_ast(neo_ast ast) {
     break;
   case NEO_AST_TYPE_MAX:
     break;
+  }
+  if (ast->operator) {
+    printf(",\"operator\":");
+    char buf[8] = {0};
+    strncpy(buf, ast->operator->start,
+            ast->operator->end - ast->operator->start);
+    printf("\"%s\"", buf);
   }
   if (ast->left) {
     printf(",\"left\":");
