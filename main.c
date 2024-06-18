@@ -8,8 +8,54 @@
 void print_ast(neo_ast ast) {
   printf("{");
   printf("\"type\":");
-  switch ((enum NEO_AST_TYPE)ast->type) {
+  enum NEO_AST_TYPE type = ast->type;
+  switch (type) {
   case NEO_AST_TYPE_UNKNOWN:
+    break;
+  case NEO_AST_TYPE_DECORATOR:
+    printf("\"NEO_AST_TYPE_DECORATOR\"");
+    break;
+  case NEO_AST_TYPE_ABSTRUCT:
+    printf("\"NEO_AST_TYPE_ABSTRUCT\"");
+    break;
+  case NEO_AST_TYPE_CLASS_FUNCTION:
+    printf("\"NEO_AST_TYPE_CLASS_FUNCTION\"");
+    break;
+  case NEO_AST_TYPE_CLASS_FIELD:
+    printf("\"NEO_AST_TYPE_CLASS_FIELD\"");
+    break;
+  case NEO_AST_TYPE_CLASS_GET:
+    printf("\"NEO_AST_TYPE_CLASS_GET\"");
+    break;
+  case NEO_AST_TYPE_CLASS_SET:
+    printf("\"NEO_AST_TYPE_CLASS_SET\"");
+    break;
+  case NEO_AST_TYPE_CLASS_PUBLIC:
+    printf("\"NEO_AST_TYPE_CLASS_PUBLIC\"");
+    break;
+  case NEO_AST_TYPE_CLASS_PRIVATE:
+    printf("\"NEO_AST_TYPE_CLASS_PRIVATE\"");
+    break;
+  case NEO_AST_TYPE_CLASS_PROTECTED:
+    printf("\"NEO_AST_TYPE_CLASS_PROTECTED\"");
+    break;
+  case NEO_AST_TYPE_CLASS_STATIC:
+    printf("\"NEO_AST_TYPE_CLASS_STATIC\"");
+    break;
+  case NEO_AST_TYPE_CLASS_STATIC_BLOCK:
+    printf("\"NEO_AST_TYPE_CLASS_STATIC_BLOCK\"");
+    break;
+  case NEO_AST_TYPE_CLASS_META:
+    printf("\"NEO_AST_TYPE_CLASS_META\"");
+    break;
+  case NEO_AST_TYPE_FUNCTION_DECLARATION:
+    printf("\"NEO_AST_TYPE_FUNCTION_DECLARATION\"");
+    break;
+  case NEO_AST_TYPE_SUPER:
+    printf("\"NEO_AST_TYPE_SUPER\"");
+    break;
+  case NEO_AST_TYPE_OBJECT_COMPUTED_FIELD:
+    printf("\"NEO_AST_TYPE_OBJECT_COMPUTED_FIELD\"");
     break;
   case NEO_AST_TYPE_THIS:
     printf("\"NEO_AST_TYPE_THIS\"");
