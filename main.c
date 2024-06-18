@@ -15,9 +15,6 @@ void print_ast(neo_ast ast) {
   case NEO_AST_TYPE_DECORATOR:
     printf("\"NEO_AST_TYPE_DECORATOR\"");
     break;
-  case NEO_AST_TYPE_ABSTRUCT:
-    printf("\"NEO_AST_TYPE_ABSTRUCT\"");
-    break;
   case NEO_AST_TYPE_CLASS_FUNCTION:
     printf("\"NEO_AST_TYPE_CLASS_FUNCTION\"");
     break;

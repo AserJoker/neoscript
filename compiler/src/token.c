@@ -47,8 +47,8 @@ static cstring symbols[] = {
     "--",  ">>",  "<<",  "=>",  "?.",  "+",  "-",  "*",  "/",  "%",
     "&",   "|",   "^",   "!",   "(",   ")",  "[",  "]",  "{",  "}",
     ",",   "?",   ";",   ":",   ".",   ">",  "<",  "@",  "=",  0};
-static cstring keywords[] = {"async",    "await",
-                             "assert",   "break",
+static cstring keywords[] = {"assert",   "async",
+                             "await",    "break",
                              "case",     "catch",
                              "class",    "const",
                              "continue", "debugger",
