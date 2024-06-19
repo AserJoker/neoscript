@@ -30,7 +30,7 @@ void neo_tokenizer_add_tokenizer_fn(neo_tokenizer tokenizer,
                                     neo_tokenizer_fn fn);
 static inline int8_t neo_token_is(neo_token token, const char *str,
                                   uint32_t type) {
-  return token->type == type &&
+  return token && token->type == type &&
          strncmp(token->start, str, token->end - token->start) == 0 &&
          *(str + (token->end - token->start)) == 0;
 }

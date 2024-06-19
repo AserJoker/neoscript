@@ -12,8 +12,14 @@ void print_ast(neo_ast ast) {
   switch (type) {
   case NEO_AST_TYPE_UNKNOWN:
     break;
-  case NEO_AST_TYPE_YIELD:
-    printf("\"NEO_AST_TYPE_YIELD\"");
+  case NEO_AST_TYPE_FOR_IN_STATEMENT:
+    printf("\"NEO_AST_TYPE_FOR_IN_STATEMENT\"");
+    break;
+  case NEO_AST_TYPE_FOR_OF_STATEMENT:
+    printf("\"NEO_AST_TYPE_FOR_OF_STATEMENT\"");
+    break;
+  case NEO_AST_TYPE_FOR_META:
+    printf("\"NEO_AST_TYPE_FOR_META\"");
     break;
   case NEO_AST_TYPE_IMPORT_CALL:
     printf("\"NEO_AST_TYPE_IMPORT_CALL\"");
@@ -162,7 +168,7 @@ void print_ast(neo_ast ast) {
     printf("\"NEO_AST_TYPE_OBJECT\"");
     break;
   case NEO_AST_TYPE_EXPRESSION: {
-    printf("\"NEO_AST_TYPE_BINARY\"");
+    printf("\"NEO_AST_TYPE_EXPRESSION\"");
     break;
   }
   case NEO_AST_TYPE_MEMBER:

@@ -48,14 +48,14 @@ static cstring symbols[] = {
     "&",   "|",   "^",   "!",   "(",   ")",  "[",  "]",  "{",  "}",
     ",",   "?",   ";",   ":",   ".",   ">",  "<",  "@",  "=",  0};
 static cstring keywords[] = {
-    "assert", "async",      "await",    "break",     "case",    "catch",
-    "class",  "const",      "continue", "debugger",  "default", "delete",
-    "do",     "else",       "export",   "extends",   "false",   "finally",
-    "for",    "function",   "from",     "get",       "if",      "import",
-    "in",     "instanceof", "let",      "null",      "new",     "return",
-    "super",  "set",        "switch",   "static",    "this",    "throw",
-    "try",    "true",       "typeof",   "undefined", "var",     "void",
-    "while",  "yield",      0};
+    "assert", "async",      "await",    "break",    "case",      "catch",
+    "class",  "const",      "continue", "debugger", "default",   "delete",
+    "do",     "else",       "export",   "extends",  "false",     "finally",
+    "for",    "function",   "from",     "get",      "if",        "import",
+    "in",     "instanceof", "let",      "null",     "new",       "of",
+    "return", "super",      "set",      "switch",   "static",    "this",
+    "throw",  "try",        "true",     "typeof",   "undefined", "var",
+    "void",   "while",      "yield",    0};
 static void neo_tokenizer_skip_white_space(neo_tokenizer tokenizer) {
   for (;;) {
     if (*tokenizer->pos.position == ' ' || *tokenizer->pos.position == '\t') {
@@ -142,7 +142,7 @@ static int8_t neo_tokenizer_read_number(neo_tokenizer tokenizer) {
       for (;;) {
         if (!flag && *token->end == '.') {
           flag = 1;
-        } else if (*token->end <= '0' || *token->end >= '9') {
+        } else if (*token->end < '0' || *token->end > '9') {
           break;
         }
         token->end++;
