@@ -47,29 +47,15 @@ static cstring symbols[] = {
     "--",  ">>",  "<<",  "=>",  "?.",  "+",  "-",  "*",  "/",  "%",
     "&",   "|",   "^",   "!",   "(",   ")",  "[",  "]",  "{",  "}",
     ",",   "?",   ";",   ":",   ".",   ">",  "<",  "@",  "=",  0};
-static cstring keywords[] = {"assert",   "async",
-                             "await",    "break",
-                             "case",     "catch",
-                             "class",    "const",
-                             "continue", "debugger",
-                             "default",  "delete",
-                             "do",       "else",
-                             "export",   "extends",
-                             "false",    "finally",
-                             "for",      "function",
-                             "from",     "get",
-                             "if",       "import",
-                             "in",       "instanceof",
-                             "let",      "null",
-                             "new",      "return",
-                             "super",    "set",
-                             "switch",   "static",
-                             "this",     "throw",
-                             "try",      "true",
-                             "typeof",   "undefined",
-                             "var",      "void",
-                             "while",    "with",
-                             "yield",    0};
+static cstring keywords[] = {
+    "assert", "async",      "await",    "break",     "case",    "catch",
+    "class",  "const",      "continue", "debugger",  "default", "delete",
+    "do",     "else",       "export",   "extends",   "false",   "finally",
+    "for",    "function",   "from",     "get",       "if",      "import",
+    "in",     "instanceof", "let",      "null",      "new",     "return",
+    "super",  "set",        "switch",   "static",    "this",    "throw",
+    "try",    "true",       "typeof",   "undefined", "var",     "void",
+    "while",  "yield",      0};
 static void neo_tokenizer_skip_white_space(neo_tokenizer tokenizer) {
   for (;;) {
     if (*tokenizer->pos.position == ' ' || *tokenizer->pos.position == '\t') {
