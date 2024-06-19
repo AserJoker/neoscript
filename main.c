@@ -12,6 +12,18 @@ void print_ast(neo_ast ast) {
   switch (type) {
   case NEO_AST_TYPE_UNKNOWN:
     break;
+  case NEO_AST_TYPE_IMPORT_CALL:
+    printf("\"NEO_AST_TYPE_IMPORT_CALL\"");
+    break;
+  case NEO_AST_TYPE_CLASS_COMPUTED_FIELD:
+    printf("\"NEO_AST_TYPE_CLASS_COMPUTED_FIELD\"");
+    break;
+  case NEO_AST_TYPE_EMPTY:
+    printf("\"NEO_AST_TYPE_EMPTY\"");
+    break;
+  case NEO_AST_TYPE_RETURN:
+    printf("\"NEO_AST_TYPE_RETURN\"");
+    break;
   case NEO_AST_TYPE_DECORATOR:
     printf("\"NEO_AST_TYPE_DECORATOR\"");
     break;
@@ -26,15 +38,6 @@ void print_ast(neo_ast ast) {
     break;
   case NEO_AST_TYPE_CLASS_SET:
     printf("\"NEO_AST_TYPE_CLASS_SET\"");
-    break;
-  case NEO_AST_TYPE_CLASS_PUBLIC:
-    printf("\"NEO_AST_TYPE_CLASS_PUBLIC\"");
-    break;
-  case NEO_AST_TYPE_CLASS_PRIVATE:
-    printf("\"NEO_AST_TYPE_CLASS_PRIVATE\"");
-    break;
-  case NEO_AST_TYPE_CLASS_PROTECTED:
-    printf("\"NEO_AST_TYPE_CLASS_PROTECTED\"");
     break;
   case NEO_AST_TYPE_CLASS_STATIC:
     printf("\"NEO_AST_TYPE_CLASS_STATIC\"");
@@ -111,8 +114,8 @@ void print_ast(neo_ast ast) {
   case NEO_AST_TYPE_ARG_DEF:
     printf("\"NEO_AST_TYPE_ARG_DEF\"");
     break;
-  case NEO_AST_TYPE_LIST:
-    printf("\"NEO_AST_TYPE_LIST\"");
+  case NEO_AST_TYPE_PAIR:
+    printf("\"NEO_AST_TYPE_PAIR\"");
     break;
   case NEO_AST_TYPE_NULL:
     printf("\"NEO_AST_TYPE_NULL\"");
