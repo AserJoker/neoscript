@@ -36,5 +36,7 @@ neo_ast create_neo_number_ast(double value);
 neo_ast create_neo_string_ast(const cstring value);
 neo_ast create_neo_symbol_ast(const cstring value);
 neo_ast create_neo_regex_ast(const cstring value);
+neo_ast create_neo_undefined_ast();
+neo_ast create_neo_null_ast();
 neo_ast neo_ast_transform(neo_ast source, neo_ast (*)(neo_ast source));
 #endif

@@ -12,8 +12,17 @@ void print_ast(neo_ast ast) {
   switch (type) {
   case NEO_AST_TYPE_UNKNOWN:
     break;
+  case NEO_AST_TYPE_CATCH_STATEMENT:
+    printf("\"NEO_AST_TYPE_CATCH_STATEMENT\"");
+    break;
+  case NEO_AST_TYPE_TRY_STATEMENT:
+    printf("\"NEO_AST_TYPE_TRY_STATEMENT\"");
+    break;
   case NEO_AST_TYPE_ARRAY_DESTRUCT_FIELD:
     printf("\"NEO_AST_TYPE_ARRAY_DESTRUCT_FIELD\"");
+    break;
+  case NEO_AST_TYPE_UNDEFINED:
+    printf("\"NEO_AST_TYPE_UNDEFINED\"");
     break;
   case NEO_AST_TYPE_OBJECT_DESTRUCT_FIELD_NAME:
     printf("\"NEO_AST_TYPE_OBJECT_DESTRUCT_FIELD_NAME\"");

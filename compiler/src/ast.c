@@ -77,6 +77,20 @@ neo_ast create_neo_regex_ast(const cstring value) {
   node->level = -1;
   return node;
 }
+neo_ast create_neo_null_ast() {
+  neo_ast node = (neo_ast)malloc(sizeof(struct _neo_ast));
+  memset(node, 0, sizeof(struct _neo_ast));
+  node->type = NEO_AST_TYPE_NULL;
+  node->level = -1;
+  return node;
+}
+neo_ast create_neo_undefined_ast() {
+  neo_ast node = (neo_ast)malloc(sizeof(struct _neo_ast));
+  memset(node, 0, sizeof(struct _neo_ast));
+  node->type = NEO_AST_TYPE_UNDEFINED;
+  node->level = -1;
+  return node;
+}
 neo_ast neo_ast_transform(neo_ast source,
                           neo_ast (*transformer)(neo_ast source)) {
   if (source->type <= 4) {
