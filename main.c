@@ -12,6 +12,24 @@ void print_ast(neo_ast ast) {
   switch (type) {
   case NEO_AST_TYPE_UNKNOWN:
     break;
+  case NEO_AST_TYPE_ELSE_STATEMENT:
+    printf("\"NEO_AST_TYPE_ELSE_STATEMENT\"");
+    break;
+  case NEO_AST_TYPE_SWITCH_CASE:
+    printf("\"NEO_AST_TYPE_SWITCH_CASE\"");
+    break;
+  case NEO_AST_TYPE_SWITCH_DEFAULT:
+    printf("\"NEO_AST_TYPE_SWITCH_DEFAULT\"");
+    break;
+  case NEO_AST_TYPE_LABEL:
+    printf("\"NEO_AST_TYPE_LABEL\"");
+    break;
+  case NEO_AST_TYPE_BREAK:
+    printf("\"NEO_AST_TYPE_BREAK\"");
+    break;
+  case NEO_AST_TYPE_CONTINUE:
+    printf("\"NEO_AST_TYPE_CONTINUE\"");
+    break;
   case NEO_AST_TYPE_THROW:
     printf("\"NEO_AST_TYPE_THROW\"");
     break;
