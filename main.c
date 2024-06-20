@@ -12,6 +12,9 @@ void print_ast(neo_ast ast) {
   switch (type) {
   case NEO_AST_TYPE_UNKNOWN:
     break;
+  case NEO_AST_TYPE_THROW:
+    printf("\"NEO_AST_TYPE_THROW\"");
+    break;
   case NEO_AST_TYPE_CATCH_STATEMENT:
     printf("\"NEO_AST_TYPE_CATCH_STATEMENT\"");
     break;

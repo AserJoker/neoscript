@@ -1619,6 +1619,19 @@ static neo_ast neo_compiler_read_return_statement(neo_compiler compiler) {
   }
   return node;
 }
+static neo_ast neo_compiler_read_throw_statement(neo_compiler compiler) {
+  neo_compiler_next(compiler, skips_default);
+  neo_token token = neo_compiler_read_token(compiler, skips_inline);
+  neo_ast node = create_neo_ast(NEO_AST_TYPE_THROW, 0, 0, 0);
+  if (token->type != NEO_TOKEN_TYPE_END && token->type != NEO_TOKEN_TYPE_EOF) {
+    node->right = neo_compiler_read_expression_statement(compiler);
+    if (!node->right) {
+      free_neo_ast(node);
+      return NULL;
+    }
+  }
+  return node;
+}
 static neo_ast neo_compiler_read_while_statement(neo_compiler compiler) {
   neo_compiler_next(compiler, skips_default);
   neo_ast node = create_neo_ast(NEO_AST_TYPE_WHILE_STATEMENT, 0, 0, 0);
@@ -1871,6 +1884,12 @@ static neo_ast neo_compiler_read_try_statement(neo_compiler compiler) {
   }
   return node;
 }
+static neo_ast neo_compiler_read_import_statement(neo_compiler compiler) {
+  return NULL;
+}
+static neo_ast neo_compiler_read_export_statement(neo_compiler compiler) {
+  return NULL;
+}
 static neo_ast neo_compiler_read_statement(neo_compiler compiler) {
   neo_token token = neo_compiler_read_token(compiler, skips_default);
   if (neo_token_is(token, "{", NEO_TOKEN_TYPE_SYMBOL)) {
@@ -1881,6 +1900,8 @@ static neo_ast neo_compiler_read_statement(neo_compiler compiler) {
     return neo_compiler_read_var_statement(compiler);
   } else if (neo_token_is(token, "return", NEO_TOKEN_TYPE_KEYWORD)) {
     return neo_compiler_read_return_statement(compiler);
+  } else if (neo_token_is(token, "throw", NEO_TOKEN_TYPE_KEYWORD)) {
+    return neo_compiler_read_throw_statement(compiler);
   } else if (neo_token_is(token, "while", NEO_TOKEN_TYPE_KEYWORD)) {
     return neo_compiler_read_while_statement(compiler);
   } else if (neo_token_is(token, "if", NEO_TOKEN_TYPE_KEYWORD)) {
@@ -1891,6 +1912,10 @@ static neo_ast neo_compiler_read_statement(neo_compiler compiler) {
     return neo_compiler_read_try_statement(compiler);
   } else if (neo_token_is(token, "for", NEO_TOKEN_TYPE_KEYWORD)) {
     return neo_compiler_read_for_statement(compiler);
+  } else if (neo_token_is(token, "import", NEO_TOKEN_TYPE_KEYWORD)) {
+    return neo_compiler_read_import_statement(compiler);
+  } else if (neo_token_is(token, "export", NEO_TOKEN_TYPE_KEYWORD)) {
+    return neo_compiler_read_export_statement(compiler);
   }
   // TODO: statement def
   int8_t is_inline = compiler->is_inline;
