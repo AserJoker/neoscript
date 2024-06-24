@@ -12,6 +12,12 @@ void print_ast(neo_ast ast) {
   switch (type) {
   case NEO_AST_TYPE_UNKNOWN:
     break;
+  case NEO_AST_TYPE_EXPORT:
+    printf("\"NEO_AST_TYPE_EXPORT\"");
+    break;
+  case NEO_AST_TYPE_EXPORT_DEFAULT:
+    printf("\"NEO_AST_TYPE_EXPORT_DEFAULT\"");
+    break;
   case NEO_AST_TYPE_WITH_STATEMENT:
     printf("\"NEO_AST_TYPE_WITH_STATEMENT\"");
     break;

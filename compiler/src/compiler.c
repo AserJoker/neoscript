@@ -2034,7 +2034,25 @@ static neo_ast neo_compiler_read_import_statement(neo_compiler compiler) {
   return NULL;
 }
 static neo_ast neo_compiler_read_export_statement(neo_compiler compiler) {
-  return NULL;
+  neo_ast node = create_neo_ast(NEO_AST_TYPE_EXPORT, 0, 0, 0);
+  neo_compiler_next(compiler, skips_default);
+  neo_token token = neo_compiler_read_token(compiler, skips_default);
+  if (neo_token_is(token, "default", NEO_TOKEN_TYPE_KEYWORD)) {
+    neo_compiler_next(compiler, skips_default);
+    node->type = NEO_AST_TYPE_EXPORT_DEFAULT;
+    node->right = neo_compiler_read_expression(compiler);
+  } else if (neo_token_is(token, "const", NEO_TOKEN_TYPE_KEYWORD) ||
+             neo_token_is(token, "var", NEO_TOKEN_TYPE_KEYWORD) ||
+             neo_token_is(token, "let", NEO_TOKEN_TYPE_KEYWORD)) {
+    node->right = neo_compiler_read_var_statement(compiler);
+  } else {
+    node->right = neo_compiler_read_expression(compiler);
+  }
+  if (!node->right) {
+    free_neo_ast(node);
+    return NULL;
+  }
+  return node;
 }
 static neo_ast neo_compiler_read_with_statement(neo_compiler compiler) {
   neo_ast node = create_neo_ast(NEO_AST_TYPE_WITH_STATEMENT, 0, 0, 0);
