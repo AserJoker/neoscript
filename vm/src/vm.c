@@ -1,13 +1,7 @@
 #include "vm.h"
 #include "common/include/imap.h"
 #include "common/include/list.h"
-#include "compiler/include/astdef.h"
 #include "engine/include/type/exception.h"
-#include "resolver/boolean.h"
-#include "resolver/null.h"
-#include "resolver/number.h"
-#include "resolver/string.h"
-#include "resolver/symbol.h"
 #include <stdlib.h>
 struct _neo_vm {
   neo_context ctx;
@@ -17,11 +11,6 @@ neo_vm create_neo_vm(neo_context ctx) {
   neo_vm vm = malloc(sizeof(struct _neo_vm));
   vm->resolvers = create_neo_imap((neo_free_fn)free_neo_list);
   vm->ctx = ctx;
-  neo_vm_set_resolver(vm, NEO_AST_TYPE_NULL, neo_resolver_null);
-  neo_vm_set_resolver(vm, NEO_AST_TYPE_BOOLEAN, neo_resolver_boolean);
-  neo_vm_set_resolver(vm, NEO_AST_TYPE_NUMBER, neo_resolver_number);
-  neo_vm_set_resolver(vm, NEO_AST_TYPE_STRING, neo_resolver_string);
-  neo_vm_set_resolver(vm, NEO_AST_TYPE_SYMBOL, neo_resolver_symbol);
   return vm;
 }
 neo_context neo_vm_get_context(neo_vm self) { return self->ctx; }
