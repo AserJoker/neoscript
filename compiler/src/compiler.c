@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #define check_skip(symbol, type, compiler)                                     \
   do {                                                                         \
     neo_token token = neo_compiler_read_token(compiler, skips_default);        \

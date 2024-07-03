@@ -687,4 +687,249 @@ struct _neo_ast_topic_pipeline_body {
 
 neo_ast_meta make_neo_ast(enum NEO_AST_TYPE type, neo_token start,
                           neo_token end);
+neo_ast_identifier create_neo_ast_identifier(neo_ast_meta meta, cstring source);
+neo_ast_private_name create_neo_private_name(neo_ast_meta meta,
+                                             neo_ast_identifier id);
+neo_ast_regex_literal
+create_neo_ast_regex_literal(neo_ast_meta meta, cstring pattern, cstring flags);
+neo_ast_null_literal create_neo_ast_null_literal(neo_ast_meta meta);
+neo_ast_string_literal create_neo_ast_string_literal(neo_ast_meta meta,
+                                                     cstring value);
+neo_ast_boolean_literal create_neo_ast_boolean_literal(neo_ast_meta meta,
+                                                       int8_t value);
+neo_ast_number_literal create_neo_ast_number_literal(neo_ast_meta meta,
+                                                     double value);
+neo_ast_bigint_literal create_neo_ast_bigint_literal(neo_ast_meta meta,
+                                                     cstring value);
+neo_ast_decimal_literal create_neo_ast_decimal_literal(neo_ast_meta meta,
+                                                       cstring value);
+neo_ast_program
+create_neo_ast_program(neo_ast_meta meta,
+                       neo_ast_interpreter_directive interpreter, int8_t kind,
+                       neo_ast *body, neo_ast_directive *directives);
+neo_ast_function create_neo_ast_function(neo_ast_meta meta,
+                                         neo_ast_identifier id, neo_ast *params,
+                                         neo_ast body, int8_t generator,
+                                         int8_t async);
+neo_ast_block_statement
+create_neo_ast_block_statement(neo_ast_meta meta, neo_ast *body,
+                               neo_ast_directive *directives);
+neo_ast_empty_statement create_neo_ast_empty_statement(neo_ast_meta meta);
+neo_ast_debugger_statement create_neo_ast_debugger_statement(neo_ast_meta meta);
+neo_ast_with_statement
+create_neo_ast_with_statement(neo_ast_meta meta, neo_ast object, neo_ast body);
+neo_ast_return_statement create_neo_ast_return_statement(neo_ast_meta meta,
+                                                         neo_ast argument);
+neo_ast_labeled_statement
+create_neo_ast_labeled_statement(neo_ast_meta meta, neo_ast_identifier id,
+                                 neo_ast body);
+neo_ast_break_statement
+create_neo_ast_break_statement(neo_ast_meta meta, neo_ast_identifier label);
+neo_ast_continue_statement
+create_neo_ast_continue_statement(neo_ast_meta meta, neo_ast_identifier label);
+neo_ast_if_statement create_neo_ast_if_statement(neo_ast_meta meta,
+                                                 neo_ast test,
+                                                 neo_ast consequent,
+                                                 neo_ast alternate);
+neo_ast_switch_statement
+create_neo_ast_switch_statement(neo_ast_meta meta, neo_ast disriminant,
+                                neo_ast_switch_case_statement *cases);
+
+neo_ast_switch_case_statement
+create_neo_ast_switch_case_statement(neo_ast_meta meta, neo_ast test,
+                                     neo_ast *consequent);
+neo_ast_throw_statement create_neo_ast_throw_statement(neo_ast_meta meta,
+                                                       neo_ast argument);
+neo_ast_try_statement
+create_neo_ast_try_statement(neo_ast_meta meta, neo_ast_block_statement block,
+                             neo_ast_catch_clause handler,
+                             neo_ast_block_statement finalizer);
+neo_ast_catch_clause create_neo_ast_catch_clause(neo_ast_meta meta,
+                                                 neo_ast_identifier param,
+                                                 neo_ast_block_statement body);
+neo_ast_while_statement
+create_neo_ast_while_statement(neo_ast_meta meta, neo_ast test, neo_ast body);
+neo_ast_do_while_statement create_neo_ast_do_while_statement(neo_ast_meta meta,
+                                                             neo_ast body,
+                                                             neo_ast test);
+neo_ast_for_statement create_neo_ast_for_statement(neo_ast_meta meta,
+                                                   neo_ast init, neo_ast test,
+                                                   neo_ast update,
+                                                   neo_ast body);
+neo_ast_for_in_statement create_neo_ast_for_in_statement(neo_ast_meta meta,
+                                                         neo_ast left,
+                                                         neo_ast right,
+                                                         neo_ast body);
+neo_ast_for_of_statement
+create_neo_ast_for_of_statement(neo_ast_meta meta, neo_ast left, neo_ast right,
+                                neo_ast body, int8_t await);
+neo_ast_variable_declaration create_neo_ast_variable_declaration(
+    neo_ast_meta meta, neo_ast_variable_declarator *declarations, int8_t kind);
+neo_ast_variable_declarator
+create_neo_ast_variable_declarator(neo_ast_meta meta, neo_ast_identifier id,
+                                   neo_ast init);
+neo_ast_decorator create_neo_ast_decorator(neo_ast_meta meta,
+                                           neo_ast expression);
+neo_ast_directive create_neo_ast_directive(neo_ast_meta meta,
+                                           neo_ast_directive_literal value);
+neo_ast_super create_neo_ast_super(neo_ast_meta meta);
+neo_ast_import create_neo_ast_import(neo_ast_meta meta);
+neo_ast_this_expression create_neo_ast_this_expression(neo_ast_meta meta);
+neo_ast_yield_expression create_neo_ast_yield_expression(neo_ast_meta meta,
+                                                         neo_ast argument,
+                                                         int8_t delegate);
+neo_ast_await_expression create_neo_ast_await_expression(neo_ast_meta meta,
+                                                         neo_ast argument);
+neo_ast_array_expression create_neo_ast_array_expression(neo_ast_meta meta,
+                                                         neo_ast *elements);
+neo_ast_object_expression create_neo_ast_object_expression(neo_ast_meta meta,
+                                                           neo_ast *properties);
+neo_ast_object_property
+create_neo_ast_object_property(neo_ast_meta meta, int8_t computed, neo_ast key,
+                               neo_ast_decorator *decorators, int8_t shorthand,
+                               neo_ast value);
+neo_ast_object_method
+create_neo_ast_object_method(neo_ast_meta meta, int8_t computed, neo_ast key,
+                             neo_ast_decorator *decorators, int8_t kind);
+neo_ast_record_expression create_neo_ast_record_expression(neo_ast_meta meta,
+                                                           neo_ast *properties);
+neo_ast_tuple_expression create_neo_ast_tuple_expression(neo_ast_meta meta,
+                                                         neo_ast *elements);
+neo_ast_unary_expression create_neo_ast_unary_expression(neo_ast_meta meta,
+                                                         int8_t prefix,
+                                                         neo_ast argument,
+                                                         neo_token operator);
+neo_ast_update_expression create_neo_ast_update_expression(neo_ast_meta meta,
+                                                           neo_token operator,
+                                                           neo_ast left,
+                                                           neo_ast right);
+neo_ast_binary_expression create_neo_ast_binary_expression(neo_ast_meta meta,
+                                                           neo_token operator,
+                                                           neo_ast left,
+                                                           neo_ast right);
+neo_ast_assignment_expression
+create_neo_ast_assignment_expression(neo_ast_meta meta, neo_token operator,
+                                     neo_ast left, neo_ast right);
+neo_ast_logic_expression create_neo_ast_logic_expression(neo_ast_meta meta,
+                                                         neo_token operator,
+                                                         neo_ast left,
+                                                         neo_ast right);
+neo_ast_spread_element create_neo_ast_spread_element(neo_ast_meta meta,
+                                                     neo_ast argument);
+neo_ast_argument_placeholder
+create_neo_ast_argument_placeholder(neo_ast_meta meta);
+neo_ast_member_expression create_neo_ast_member_expression(neo_ast_meta meta,
+                                                           neo_ast object,
+                                                           neo_ast property,
+                                                           int8_t computed);
+neo_ast_optional_member_expression
+create_neo_ast_optional_member_expression(neo_ast_meta meta, neo_ast object,
+                                          neo_ast property, int8_t computed,
+                                          int8_t optional);
+neo_ast_bind_expression create_neo_ast_bind_expression(neo_ast_meta meta,
+                                                       neo_ast object,
+                                                       neo_ast callee);
+neo_ast_condition_expression
+create_neo_ast_condition_expression(neo_ast_meta meta, neo_ast test,
+                                    neo_ast consequent, neo_ast alternate);
+neo_ast_call_expression create_neo_ast_call_expression(neo_ast_meta meta,
+                                                       neo_ast callee,
+                                                       neo_ast *arguments);
+neo_ast_optional_call_expression
+create_neo_ast_optional_call_expression(neo_ast_meta meta, neo_ast callee,
+                                        neo_ast *arguments, int8_t optional);
+neo_ast_sequence_expression
+create_neo_ast_sequence_expression(neo_ast_meta meta, neo_ast *expressions);
+
+neo_ast_parenthesized_expression
+create_neo_ast_parenthesized_expression(neo_ast_meta meta, neo_ast expression);
+neo_ast_do_expression create_neo_ast_do_expression(neo_ast_meta meta,
+                                                   neo_ast body);
+neo_ast_module_expression
+create_neo_ast_module_expression(neo_ast_meta meta, neo_ast_program program);
+neo_ast_topic_expression create_neo_ast_topic_expression(neo_ast_meta meta);
+neo_ast_template_literal create_neo_ast_template_literal(
+    neo_ast_meta meta, neo_ast_template_element *quasis, neo_ast *expressions);
+neo_ast_tagged_template_expression
+create_neo_ast_tagged_template_expression(neo_ast_meta meta, neo_ast tag,
+                                          neo_ast_template_literal quasi);
+neo_ast_template_element create_neo_ast_template_element(neo_ast_meta meta,
+                                                         int8_t tail,
+                                                         cstring cooked,
+                                                         cstring raw);
+neo_ast_object_pattern create_neo_ast_object_pattern(neo_ast_meta meta,
+                                                     neo_ast *properties);
+neo_ast_array_pattern create_neo_ast_array_pattern(neo_ast_meta meta,
+                                                   neo_ast *elements);
+neo_ast_rest_pattern create_neo_ast_rest_pattern(neo_ast_meta meta,
+                                                 neo_ast argument);
+neo_ast_assignment_pattern create_neo_ast_assignment_pattern(neo_ast_meta meta,
+                                                             neo_ast left,
+                                                             neo_ast right);
+neo_ast_class create_neo_ast_class(neo_ast_meta meta, neo_ast_identifier id,
+                                   neo_ast super, neo_ast_class_body body,
+                                   neo_ast_decorator *decorators);
+neo_ast_class_body create_neo_ast_class_body(neo_ast_meta meta, neo_ast *body);
+neo_ast_class_method create_neo_ast_class_method(neo_ast_meta meta, neo_ast id,
+                                                 neo_ast *params, neo_ast body,
+                                                 int8_t generator, int8_t async,
+                                                 int8_t computed,
+                                                 int8_t static_,
+                                                 neo_ast_decorator *decorators);
+neo_ast_class_private_method create_neo_ast_class_private_method(
+    neo_ast_meta meta, neo_ast id, neo_ast *params, neo_ast body,
+    int8_t generator, int8_t async, int8_t static_,
+    neo_ast_decorator *decorators);
+neo_ast_class_property create_neo_ast_class_property(neo_ast_meta meta,
+                                                     neo_ast id, neo_ast value,
+                                                     int8_t computed,
+                                                     int8_t static_);
+neo_ast_class_private_property create_neo_ast_class_private_property(
+    neo_ast_meta meta, neo_ast_private_name id, neo_ast value, int8_t static_);
+neo_ast_class_accessor_property
+create_neo_ast_class_accessor_property(neo_ast_meta meta, neo_ast id,
+                                       neo_ast value, int8_t computed,
+                                       int8_t static_);
+neo_ast_static_block create_neo_ast_static_block(neo_ast_meta meta,
+                                                 neo_ast *body);
+neo_ast_meta_property create_neo_ast_meta_property(neo_ast_meta meta,
+                                                   neo_ast_identifier id,
+                                                   neo_ast_identifier property);
+neo_ast_import_declaration create_neo_ast_import_declaration(
+    neo_ast_meta meta, int8_t kind, neo_ast *specifiers,
+    neo_ast_string_literal source, neo_ast_import_attribute *assertions);
+neo_ast_import_specifier
+create_neo_ast_import_specifier(neo_ast_meta meta, neo_ast_identifier local,
+                                neo_ast imported);
+neo_ast_import_default_specifier
+create_neo_ast_import_default_specifier(neo_ast_meta meta,
+                                        neo_ast_identifier local);
+neo_ast_import_namespace_specifier
+create_neo_ast_import_namespace_specifier(neo_ast_meta meta,
+                                          neo_ast_identifier local);
+neo_ast_import_attribute
+create_neo_ast_import_attribute(neo_ast_meta meta, neo_ast_identifier key,
+                                neo_ast_string_literal value);
+neo_ast_export_named_declaration create_neo_ast_export_named_declaration(
+    neo_ast_meta meta, neo_ast declaration, neo_ast *specifiers,
+    neo_ast_string_literal source, neo_ast_import_attribute *assertions);
+neo_ast_export_specifier create_neo_ast_export_specifier(neo_ast_meta meta,
+                                                         neo_ast exported,
+                                                         neo_ast local);
+neo_ast_export_namespace_specifier
+create_neo_ast_export_namespace_specifier(neo_ast_meta meta, neo_ast exported);
+neo_ast_export_default_declaration
+create_neo_ast_export_default_declaration(neo_ast_meta meta,
+                                          neo_ast declartion);
+neo_ast_pipeline_body create_neo_ast_pipeline_body(neo_ast_meta meta);
+neo_ast_bare_function_pipeline_body
+create_neo_ast_bare_function_pipeline_body(neo_ast_meta meta, neo_ast callee);
+neo_ast_bare_constructor_pipeline_body
+create_neo_ast_bare_constructor_pipeline_body(neo_ast_meta meta,
+                                              neo_ast callee);
+neo_ast_awaited_function_pipeline_body
+create_neo_ast_awaited_function_pipeline_body(neo_ast_meta meta,
+                                              neo_ast callee);
+neo_ast_topic_pipeline_body
+create_neo_ast_topic_pipeline_body(neo_ast_meta meta, neo_ast expression);
 #endif
